@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { getUserBaseline } from '../actions/quiz';
 
 const QUIZ_DATA = [
   {
@@ -24,6 +25,7 @@ export default function AffectiveQuizRoute() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const requestRef = useRef<number>(0);
   const frustFramesRef = useRef<number>(0);
+  const baselineRef = useRef<{ frownBase: number, frownMax: number } | null>(null);
 
   const [metrics, setMetrics] = useState({ frust: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
@@ -35,7 +37,18 @@ export default function AffectiveQuizRoute() {
   const [score, setScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
 
+  const [baseline, setBaseline] = useState<{ frownBase: number, frownMax: number } | null>(null);
+
   useEffect(() => {
+    const fetchBaseline = async () => {
+      const data = await getUserBaseline();
+      if (data && data.frownBase !== null && data.frownMax !== null) {
+        baselineRef.current = { frownBase: data.frownBase, frownMax: data.frownMax };
+        console.log("Calibração guardada na Ref:", baselineRef.current);
+      }
+    };
+    fetchBaseline();
+
     let faceLandmarker: FaceLandmarker;
     let lastVideoTime = -1;
 
@@ -75,8 +88,20 @@ export default function AffectiveQuizRoute() {
           const blendshapes = results.faceBlendshapes[0].categories;
           const getScore = (name: string) => blendshapes.find(b => b.categoryName === name)?.score || 0;
 
-          const frownScore = (getScore("browDownLeft") + getScore("browDownRight")) / 2;
-          const frustPercent = Math.round(frownScore * 100);
+          const frownScoreRaw = (getScore("browDownLeft") + getScore("browDownRight")) / 2;
+
+          let frustPercent = 0;
+          const baseline = baselineRef.current;
+
+          if (baseline && (baseline.frownMax - baseline.frownBase) > 0) {
+            const range = baseline.frownMax - baseline.frownBase;
+
+            const normalized = ((frownScoreRaw - baseline.frownBase) / range) * 100;
+
+            frustPercent = Math.max(0, Math.min(100, Math.round(normalized)));
+          } else {
+            frustPercent = Math.round(frownScoreRaw * 100);
+          }
 
           setMetrics({ frust: frustPercent });
 
