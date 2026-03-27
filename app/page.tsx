@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import Link from 'next/link';
-import { ChevronRight, Camera, AlertTriangle } from 'lucide-react';
+import AuthButtons from './components/AuthButtons';
+import { AlertTriangle, Camera, ChevronRight } from 'lucide-react';
 
 export default function AffectiveDashboard() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -155,10 +156,13 @@ export default function AffectiveDashboard() {
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Affective Learning Engine</h1>
           <p className="text-slate-400 text-sm">Dashboard de Monitorização (Testes Livres)</p>
         </div>
-        <Link href="/quiz" className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition-colors">
-          Testar Quiz Adaptativo
-          <ChevronRight size={18} />
-        </Link>
+        <div className="flex items-center gap-4">
+            <AuthButtons />
+            <Link href="/quiz" className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition-colors">
+            Testar Quiz Adaptativo
+            <ChevronRight size={18} />
+            </Link>
+        </div>
       </header>
 
       <div className="flex flex-wrap justify-center gap-8 w-full max-w-7xl">

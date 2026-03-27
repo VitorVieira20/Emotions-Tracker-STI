@@ -44,3 +44,6 @@ package-lock.json
 
 index.html
 styles.css
+/app/generated/prisma
+
+GEMINI.md
