@@ -1,25 +1,17 @@
-'use client';
-
 import Link from 'next/link';
-import { 
-  BrainCircuit, 
-  Trophy, 
-  Target, 
-  Clock, 
-  ChevronLeft,
-  Sparkles,
-  History,
-  TrendingUp
-} from 'lucide-react';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import prisma from '@/app/lib/prisma';
+import { BrainCircuit, Trophy, Target, Clock, ChevronLeft, Sparkles, History, TrendingUp } from 'lucide-react';
 
-const STUDENT_DATA = {
-  name: "João Silva",
-  level: "Inglês - Intermédio/Avançado (B2)",
-  kpis: {
-    avgScore: "82%",
-    focusLevel: "88%",
-    hintsUsed: 14,
-    totalTime: "3h 45m"
+const formatEnglishLevel = (level: string | null) => {
+  switch (level) {
+    case 'A2': return 'Inglês - Básico (A2)';
+    case 'B1': return 'Inglês - Intermédio (B1)';
+    case 'B2': return 'Inglês - Intermédio/Avançado (B2)';
+    case 'C1': return 'Inglês - Avançado (C1)';
+    default: return 'Nível não definido';
   }
 };
 
@@ -36,18 +28,39 @@ const RECENT_QUIZZES = [
   { title: "Leitura: Artigo Científico", score: "8/10", date: "15 Março", emotion: "Focado", hintHelp: false },
 ];
 
-export default function StudentDashboard() {
+export default async function StudentDashboard() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    redirect('/login');
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!user) redirect('/login');
+
+  const userName = user.name || user.username;
+  const userLevel = formatEnglishLevel(user.englishLevel);
+
+  const kpis = {
+    avgScore: "82%",
+    focusLevel: "88%",
+    hintsUsed: 14,
+    totalTime: "3h 45m"
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans p-4 md:p-8">
       
-      {/* HEADER DO ALUNO */}
       <header className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
         <div>
           <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-3 text-sm font-medium">
             <ChevronLeft size={16} /> Voltar ao Início
           </Link>
-          <h1 className="text-2xl md:text-3xl font-bold">Olá, {STUDENT_DATA.name} 👋</h1>
-          <p className="text-slate-400 text-sm mt-1">{STUDENT_DATA.level}</p>
+          <h1 className="text-2xl md:text-3xl font-bold">Olá, {userName} 👋</h1>
+          <p className="text-slate-400 text-sm mt-1">{userLevel}</p>
         </div>
         
         <Link href="/quiz" className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-bold transition-all shadow-lg shadow-indigo-500/20 w-full md:w-auto justify-center">
@@ -64,7 +77,7 @@ export default function StudentDashboard() {
               <h3 className="text-slate-400 text-sm font-medium">Pontuação Média</h3>
               <Trophy className="text-amber-400" size={20} />
             </div>
-            <p className="text-3xl font-bold">{STUDENT_DATA.kpis.avgScore}</p>
+            <p className="text-3xl font-bold">{kpis.avgScore}</p>
           </div>
           
           <div className="bg-slate-900 p-6 rounded-2xl border border-white/5 shadow-lg relative overflow-hidden">
@@ -72,8 +85,7 @@ export default function StudentDashboard() {
               <h3 className="text-slate-400 text-sm font-medium">Nível de Foco (IA)</h3>
               <BrainCircuit className="text-indigo-400" size={20} />
             </div>
-            <p className="text-3xl font-bold text-indigo-400 relative z-10">{STUDENT_DATA.kpis.focusLevel}</p>
-            {/* Efeito visual subtil de "ondas cerebrais" no fundo do card */}
+            <p className="text-3xl font-bold text-indigo-400 relative z-10">{kpis.focusLevel}</p>
             <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
           </div>
 
@@ -82,7 +94,7 @@ export default function StudentDashboard() {
               <h3 className="text-slate-400 text-sm font-medium">Dicas Utilizadas</h3>
               <Target className="text-sky-400" size={20} />
             </div>
-            <p className="text-3xl font-bold text-sky-400">{STUDENT_DATA.kpis.hintsUsed}</p>
+            <p className="text-3xl font-bold text-sky-400">{kpis.hintsUsed}</p>
           </div>
 
           <div className="bg-slate-900 p-6 rounded-2xl border border-white/5 shadow-lg">
@@ -90,7 +102,7 @@ export default function StudentDashboard() {
               <h3 className="text-slate-400 text-sm font-medium">Tempo de Estudo</h3>
               <Clock className="text-emerald-500" size={20} />
             </div>
-            <p className="text-3xl font-bold">{STUDENT_DATA.kpis.totalTime}</p>
+            <p className="text-3xl font-bold">{kpis.totalTime}</p>
           </div>
         </div>
 
