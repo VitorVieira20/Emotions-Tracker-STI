@@ -10,11 +10,19 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  username     String    @unique
-  passwordHash String
-  createdAt    DateTime  @default(now())
-  sessions     Session[]
+  id                    String    @id @default(cuid())
+  username              String    @unique
+  passwordHash          String
+  createdAt             DateTime  @default(now())
+  sessions              Session[]
+  name                  String?
+  englishLevel          String?
+  strongAreas           String[]
+  weakAreas             String[]
+  onboardingCompleted   Boolean   @default(false)
+  frownBase             Float?
+  frownMax              Float?
+  smileMax              Float?
 }
 
 model Session {
