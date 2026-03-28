@@ -1,6 +1,7 @@
 import { QuestionResponse } from "./QuestionResponse"
 
 export type QuizAttempt = {
+    id: string
     avgFrustration: number,
     startTime: Date,
     endTime: Date | null,
