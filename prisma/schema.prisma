@@ -14,7 +14,7 @@ model User {
   username              String    @unique
   passwordHash          String
   createdAt             DateTime  @default(now())
-  sessions              Session[]
+  quizAttempts          QuizAttempt[]
   name                  String?
   englishLevel          String?
   strongAreas           String[]
@@ -25,13 +25,49 @@ model User {
   smileMax              Float?
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  score        Int
-  focusLevel   Float
-  hintsUsed    Int
-  finalEmotion String
-  createdAt    DateTime @default(now())
+model Question {
+  id            String   @id @default(cuid())
+  text          String
+  options       String[]
+  correctOption Int
+  cefrLevel     String
+  area          String
+  difficulty    String
+  hint          String
+  createdAt     DateTime @default(now())
+
+  responses QuestionResponse[]
+}
+
+model QuizAttempt {
+  id              String             @id @default(cuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  startTime       DateTime           @default(now())
+  endTime         DateTime?    
+  
+  score           Int                @default(0)
+  totalQuestions  Int                @default(0)
+  avgFrustration  Float              @default(0)
+  totalHintsUsed  Int                @default(0)
+  
+  responses       QuestionResponse[]
+}
+
+model QuestionResponse {
+  id               String       @id @default(cuid())
+  
+  attemptId        String
+  attempt          QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  
+  questionId       String
+  question         Question     @relation(fields: [questionId], references: [id])
+  
+  isCorrect        Boolean
+  hintUsed         Boolean      @default(false)
+  frustrationLevel Float
+  timeSpentSeconds Int
+  
+  createdAt        DateTime     @default(now())
 }

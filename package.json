@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "eslint"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.32",
     "@prisma/adapter-pg": "^7.6.0",
@@ -32,6 +35,8 @@
     "eslint-config-next": "16.1.6",
     "prisma": "^7.6.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

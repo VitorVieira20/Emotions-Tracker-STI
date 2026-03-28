@@ -3,172 +3,171 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/app/lib/prisma';
-import { BrainCircuit, Trophy, Target, Clock, ChevronLeft, Sparkles, History, TrendingUp } from 'lucide-react';
+import { BrainCircuit, Trophy, Target, Clock, Sparkles } from 'lucide-react';
 import LogoutButton from './LogoutButton';
+import { QuizAttempt } from '@/types/QuizAttempt';
+import InteractiveQuizHistory from '../components/InteractiveQuizHistory';
 
 const formatEnglishLevel = (level: string | null) => {
-  switch (level) {
-    case 'A2': return 'Inglês - Básico (A2)';
-    case 'B1': return 'Inglês - Intermédio (B1)';
-    case 'B2': return 'Inglês - Intermédio/Avançado (B2)';
-    case 'C1': return 'Inglês - Avançado (C1)';
-    default: return 'Nível não definido';
-  }
+    switch (level) {
+      case 'A2': return 'Inglês - Básico (A2)';
+      case 'B1': return 'Inglês - Intermédio (B1)';
+      case 'B2': return 'Inglês - Intermédio/Avançado (B2)';
+      case 'C1': return 'Inglês - Avançado (C1)';
+      default: return 'Nível não definido';
+    }
 };
-
-const SKILLS_BREAKDOWN = [
-  { topic: "Mixed Conditionals", mastery: 90, color: "bg-emerald-500" },
-  { topic: "Negative Inversion", mastery: 45, color: "bg-rose-500" },
-  { topic: "Passive Voice", mastery: 75, color: "bg-amber-500" },
-  { topic: "Modals of Deduction", mastery: 100, color: "bg-emerald-500" },
-];
-
-const RECENT_QUIZZES = [
-  { title: "Gramática: Tempos Verbais", score: "9/10", date: "Hoje", emotion: "Focado", hintHelp: true },
-  { title: "Vocabulário: Phrasal Verbs", score: "6/10", date: "Ontem", emotion: "Frustrado", hintHelp: false },
-  { title: "Leitura: Artigo Científico", score: "8/10", date: "15 Março", emotion: "Focado", hintHelp: false },
-];
+  
+function formatDuration(seconds: number) {
+    if (seconds < 60) return `${Math.round(seconds)}s`;
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    if (hours > 0) {
+        return `${hours}h ${minutes % 60}m`;
+    }
+    return `${minutes}m`;
+}
 
 export default async function StudentDashboard() {
-  const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) redirect('/login');
+  
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+    if (!user) redirect('/login');
+  
+    const completedAttempts = await prisma.quizAttempt.findMany({
+      where: { 
+          userId: session.user.id,
+          endTime: { not: null }
+      },
+      orderBy: { startTime: 'desc' },
+      include: {
+        responses: {
+          include: {
+            question: true,
+          },
+        },
+      },
+    }) as QuizAttempt[];
+  
+    // KPIs Calculation
+    const totalQuestionsAnswered = completedAttempts.reduce((sum, a) => sum + (a.totalQuestions || 0), 0);
+    const totalCorrect = completedAttempts.reduce((sum, a) => sum + (a.score || 0), 0);
+    const avgScore = totalQuestionsAnswered > 0 ? Math.round((totalCorrect / totalQuestionsAnswered) * 100) : 0;
+    const hintsUsed = completedAttempts.reduce((sum, a) => sum + (a.totalHintsUsed || 0), 0);
+    const totalTimeSeconds = completedAttempts.reduce((sum, a) => {
+      if (a.endTime) {
+        return sum + (a.endTime.getTime() - a.startTime.getTime()) / 1000;
+      }
+      return sum;
+    }, 0);
+    const overallAvgFrustration = completedAttempts.length > 0 
+      ? completedAttempts.reduce((sum, a) => sum + (a.avgFrustration || 0), 0) / completedAttempts.length
+      : 0;
+  
+    const kpis = {
+      avgScore: `${avgScore}%`,
+      focusLevel: `${100 - Math.round(overallAvgFrustration)}%`,
+      hintsUsed: hintsUsed,
+      totalTime: formatDuration(totalTimeSeconds),
+    };
+  
+    // Skills Breakdown Calculation
+    const allResponses = completedAttempts.flatMap(a => a.responses);
+    const responsesByArea = allResponses.reduce((acc, res) => {
+      const area = res.question.area;
+      if (!acc[area]) {
+        acc[area] = { correct: 0, total: 0 };
+      }
+      acc[area].total++;
+      if (res.isCorrect) acc[area].correct++;
+      return acc;
+    }, {} as Record<string, { correct: number; total: number }>);
+  
+    const skillsBreakdown = Object.entries(responsesByArea).map(([topic, data]) => {
+      const mastery = Math.round((data.correct / data.total) * 100);
+      let color = 'bg-rose-500';
+      if (mastery >= 80) color = 'bg-emerald-500';
+      else if (mastery >= 50) color = 'bg-amber-500';
+      return { topic, mastery, color };
+    }).sort((a, b) => b.mastery - a.mastery);
+  
+    const userName = user.name || user.username;
+    const userLevel = formatEnglishLevel(user.englishLevel);
 
-  if (!session?.user?.id) {
-    redirect('/login');
-  }
+    return (
+        <div className="min-h-screen bg-slate-950 text-slate-50 font-sans p-4 sm:p-6 md:p-8">
+            <main className="max-w-7xl mx-auto space-y-8">
+                <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+                    <div>
+                        <h1 className="text-3xl md:text-4xl font-bold text-slate-50">Olá, {userName}</h1>
+                        <p className="text-slate-400 text-sm mt-1">{userLevel}</p>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <Link href="/quiz" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-bold transition-all shadow-lg shadow-indigo-500/20">
+                            <Sparkles size={18} />
+                            Novo Quiz
+                        </Link>
+                        <LogoutButton />
+                    </div>
+                </header>
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-  });
-
-  if (!user) redirect('/login');
-
-  const userName = user.name || user.username;
-  const userLevel = formatEnglishLevel(user.englishLevel);
-
-  const kpis = {
-    avgScore: "82%",
-    focusLevel: "88%",
-    hintsUsed: 14,
-    totalTime: "3h 45m"
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 font-sans p-4 md:p-8">
-
-      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Olá, {userName} 👋</h1>
-          <p className="text-slate-400 text-sm mt-1">{userLevel}</p>
-        </div>
-
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <Link href="/quiz" className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-bold transition-all shadow-lg shadow-indigo-500/20 w-full md:w-auto justify-center">
-            <Sparkles size={18} />
-            Continuar a Aprender
-          </Link>
-          <LogoutButton />
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto space-y-8">
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <div className="bg-slate-900 p-6 rounded-2xl border border-white/5 shadow-lg">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-slate-400 text-sm font-medium">Pontuação Média</h3>
-              <Trophy className="text-amber-400" size={20} />
-            </div>
-            <p className="text-3xl font-bold">{kpis.avgScore}</p>
-          </div>
-
-          <div className="bg-slate-900 p-6 rounded-2xl border border-white/5 shadow-lg relative overflow-hidden">
-            <div className="flex justify-between items-start mb-2 relative z-10">
-              <h3 className="text-slate-400 text-sm font-medium">Nível de Foco (IA)</h3>
-              <BrainCircuit className="text-indigo-400" size={20} />
-            </div>
-            <p className="text-3xl font-bold text-indigo-400 relative z-10">{kpis.focusLevel}</p>
-            <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
-          </div>
-
-          <div className="bg-slate-900 p-6 rounded-2xl border border-white/5 shadow-lg">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-slate-400 text-sm font-medium">Dicas Utilizadas</h3>
-              <Target className="text-sky-400" size={20} />
-            </div>
-            <p className="text-3xl font-bold text-sky-400">{kpis.hintsUsed}</p>
-          </div>
-
-          <div className="bg-slate-900 p-6 rounded-2xl border border-white/5 shadow-lg">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="text-slate-400 text-sm font-medium">Tempo de Estudo</h3>
-              <Clock className="text-emerald-500" size={20} />
-            </div>
-            <p className="text-3xl font-bold">{kpis.totalTime}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-
-          <div className="lg:col-span-2 bg-slate-900 p-6 md:p-8 rounded-2xl border border-white/5 shadow-lg flex flex-col">
-            <div className="flex items-center gap-2 mb-6 border-b border-slate-800 pb-4">
-              <TrendingUp className="text-slate-400" size={20} />
-              <h2 className="text-lg font-bold">O teu Domínio por Tópico</h2>
-            </div>
-
-            <div className="space-y-6 mt-2">
-              {SKILLS_BREAKDOWN.map((skill, idx) => (
-                <div key={idx} className="flex flex-col gap-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="font-medium text-slate-300">{skill.topic}</span>
-                    <span className="font-bold text-white">{skill.mastery}%</span>
-                  </div>
-                  <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full ${skill.color} transition-all duration-1000 ease-out`} 
-                      style={{ width: `${skill.mastery}%` }}
-                    ></div>
-                  </div>
-                  {skill.mastery < 50 && (
-                    <p className="text-xs text-rose-400 mt-1">Recomendamos rever este tópico. O sistema detetou frustração recorrente aqui.</p>
-                  )}
+                {/* KPIs Section */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <KpiCard icon={Trophy} title="Pontuação Média" value={kpis.avgScore} color="amber" />
+                    <KpiCard icon={BrainCircuit} title="Nível de Foco (IA)" value={kpis.focusLevel} color="indigo" />
+                    <KpiCard icon={Target} title="Dicas Utilizadas" value={kpis.hintsUsed.toString()} color="sky" />
+                    <KpiCard icon={Clock} title="Tempo de Estudo" value={kpis.totalTime} color="emerald" />
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="bg-slate-900 p-6 md:p-8 rounded-2xl border border-white/5 shadow-lg flex flex-col">
-            <div className="flex items-center gap-2 mb-6 border-b border-slate-800 pb-4">
-              <History className="text-slate-400" size={20} />
-              <h2 className="text-lg font-bold">Atividade Recente</h2>
-            </div>
+                {/* Main content grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Skills Breakdown */}
+                    <div className="lg:col-span-1 bg-slate-900 p-6 rounded-2xl shadow-lg border border-white/5">
+                        <h2 className="text-xl font-bold text-slate-50 mb-6">Domínio por Tópico</h2>
+                        <div className="space-y-5">
+                            {skillsBreakdown.map((skill) => (
+                                <div key={skill.topic}>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <p className="text-sm font-medium text-slate-300">{skill.topic}</p>
+                                        <p className="text-sm font-bold text-slate-50">{skill.mastery}%</p>
+                                    </div>
+                                    <div className="w-full bg-slate-800 rounded-full h-2">
+                                        <div className={`h-2 rounded-full ${skill.color}`} style={{ width: `${skill.mastery}%` }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                             {skillsBreakdown.length === 0 && (
+                                <p className="text-slate-400 text-center py-8">Complete um quiz para ver a análise de tópicos.</p>
+                            )}
+                        </div>
+                    </div>
 
-            <div className="flex flex-col gap-5 overflow-y-auto pr-2">
-              {RECENT_QUIZZES.map((quiz, i) => (
-                <div key={i} className="flex flex-col gap-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                  <div className="flex justify-between items-start">
-                    <h4 className="font-semibold text-sm leading-tight text-slate-200">{quiz.title}</h4>
-                    <span className="text-xs font-bold bg-slate-950 px-2 py-1 rounded text-slate-300">{quiz.score}</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-xs mt-2">
-                    <span className={`px-2 py-0.5 rounded-full font-medium ${
-                      quiz.emotion === 'Focado' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
-                    }`}>
-                      {quiz.emotion}
-                    </span>
-                    {quiz.hintHelp && (
-                      <span className="text-sky-400 flex items-center gap-1">
-                        <Sparkles size={10} /> Dicas ajudaram
-                      </span>
-                    )}
-                  </div>
+                    {/* Interactive History */}
+                    <div className="lg:col-span-2">
+                        <InteractiveQuizHistory attempts={completedAttempts} />
+                    </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
+            </main>
         </div>
-      </div>
-    </div>
-  );
+    );
+}
+
+// A simple component for KPI cards to keep the main component cleaner
+function KpiCard({ icon: Icon, title, value, color }: { icon: React.ElementType, title: string, value: string, color: string }) {
+    const colors = {
+        amber: 'text-amber-400',
+        indigo: 'text-indigo-400',
+        sky: 'text-sky-400',
+        emerald: 'text-emerald-400',
+    }
+    return (
+        <div className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-white/5">
+            <div className="flex justify-between items-center mb-1">
+                <h3 className="text-sm font-medium text-slate-400">{title}</h3>
+                <Icon className={`${colors[color as keyof typeof colors] || 'text-slate-400'}`} size={22} />
+            </div>
+            <p className="text-3xl font-bold text-slate-50">{value}</p>
+        </div>
+    );
 }
