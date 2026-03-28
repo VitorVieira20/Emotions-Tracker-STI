@@ -265,7 +265,7 @@ export default function OnboardingPage() {
             </div>
         </div>
 
-        <div className="min-h-[400px]">
+        <div className="min-h-100">
             {renderStepContent()}
         </div>
 

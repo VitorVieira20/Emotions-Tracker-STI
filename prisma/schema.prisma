@@ -35,3 +35,15 @@ model Session {
   finalEmotion String
   createdAt    DateTime @default(now())
 }
+
+model Question {
+  id            String   @id @default(cuid())
+  text          String
+  options       String[]
+  correctOption Int
+  cefrLevel     String   // "A1", "A2", "B1", "B2", "C1", "C2"
+  area          String   // "Reading", "Listening", "Grammar", "Vocabulary", "Speaking", "Writing"
+  difficulty    String   // "Easy", "Medium", "Hard"
+  hint          String
+  createdAt     DateTime @default(now())
+}
