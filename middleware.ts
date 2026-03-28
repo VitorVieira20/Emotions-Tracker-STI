@@ -12,10 +12,15 @@ export default withAuth(
     if (isAuthenticated) {
       const onboardingCompleted = token.onboardingCompleted || false;
 
+
+      if (onboardingCompleted && pathname === '/') {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
+
       if (!onboardingCompleted && pathname !== '/onboarding') {
         return NextResponse.redirect(new URL('/onboarding', req.url));
       }
-
+      
       if (onboardingCompleted && pathname === '/onboarding') {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
@@ -23,11 +28,11 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
+      authorized: () => true,
     },
   }
 );
 
 export const config = {
-  matcher: ['/quiz/:path*', '/dashboard/:path*', '/onboarding'],
+  matcher: ['/', '/quiz/:path*', '/dashboard/:path*', '/onboarding'],
 };
