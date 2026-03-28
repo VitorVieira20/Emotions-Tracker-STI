@@ -6,14 +6,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { getUserBaseline } from '../actions/quiz';
 import { startAdaptiveQuiz, submitAnswerAndGetNext } from '../actions/adaptiveEngine';
-
-type Question = {
-  id: string;
-  text: string;
-  options: string[];
-  correctOption: number;
-  hint: string;
-};
+import { Question } from '@/types/Question';
 
 export default function AffectiveQuizRoute() {
   const videoRef = useRef<HTMLVideoElement>(null);

@@ -1,15 +1,6 @@
-export type Difficulty = 'Easy' | 'Medium' | 'Hard';
+import { QuestionResponse } from "@/types/QuestionResponse";
 
-export type Response = {
-  attemptId: string,
-  frustrationLevel: number,
-  hintUsed: boolean,
-  isCorrect: boolean,
-  questionId: string,
-  timeSpentSeconds: number
-}
-
-export function quizFinalStats(allResponses: Response[]) {
+export function quizFinalStats(allResponses: QuestionResponse[]) {
   const totalQuestions = allResponses.length;
   const finalScore = allResponses.filter((r) => r.isCorrect).length;
   const totalHints = allResponses.filter((r) => r.hintUsed).length;

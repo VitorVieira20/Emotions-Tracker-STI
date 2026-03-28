@@ -3,7 +3,9 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/app/lib/prisma';
-import { Difficulty, quizFinalStats, Response } from '../lib/utils/quiz-helpers';
+import { quizFinalStats } from '../lib/utils/quiz-helpers';
+import { QuestionResponse } from '@/types/QuestionResponse';
+import { Difficulty } from '@/types/Difficulty';
 
 export async function startAdaptiveQuiz() {
   try {
@@ -119,7 +121,7 @@ export async function submitAnswerAndGetNext(
     if (responseCount >= QUIZ_LENGTH) {
       const allResponses = await prisma.questionResponse.findMany({
         where: { attemptId },
-      }) as Response[];
+      }) as QuestionResponse[];
       
       const totalQuestions = allResponses.length;
       const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);
@@ -170,7 +172,7 @@ export async function submitAnswerAndGetNext(
     const answeredQuestionIds = await prisma.questionResponse.findMany({
         where: { attemptId },
         select: { questionId: true },
-    }).then((responses: any[]) => responses.map(r => r.questionId));
+    }).then((responses: QuestionResponse[]) => responses.map(r => r.questionId));
 
     let nextQuestions = await prisma.question.findMany({
         where: {
@@ -229,7 +231,7 @@ export async function submitAnswerAndGetNext(
     if (nextQuestions.length === 0) {
       const allResponses = await prisma.questionResponse.findMany({
         where: { attemptId },
-      }) as Response[];
+      }) as QuestionResponse[];
 
       const totalQuestions = allResponses.length;
       const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);

@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/app/lib/prisma';
-import { BrainCircuit, Trophy, Target, Clock, ChevronLeft, Sparkles, History, TrendingUp } from 'lucide-react';
+import { BrainCircuit, Trophy, Target, Clock, Sparkles, History, TrendingUp } from 'lucide-react';
 import LogoutButton from './LogoutButton';
+import { QuizAttempt } from '@/types/QuizAttempt';
 
 const formatEnglishLevel = (level: string | null) => {
   switch (level) {
@@ -16,41 +17,103 @@ const formatEnglishLevel = (level: string | null) => {
   }
 };
 
-const SKILLS_BREAKDOWN = [
-  { topic: "Mixed Conditionals", mastery: 90, color: "bg-emerald-500" },
-  { topic: "Negative Inversion", mastery: 45, color: "bg-rose-500" },
-  { topic: "Passive Voice", mastery: 75, color: "bg-amber-500" },
-  { topic: "Modals of Deduction", mastery: 100, color: "bg-emerald-500" },
-];
+function formatDuration(seconds: number) {
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    if (hours > 0) {
+        return `${hours}h ${minutes % 60}m`;
+    }
+    return `${minutes}m`;
+}
 
-const RECENT_QUIZZES = [
-  { title: "Gramática: Tempos Verbais", score: "9/10", date: "Hoje", emotion: "Focado", hintHelp: true },
-  { title: "Vocabulário: Phrasal Verbs", score: "6/10", date: "Ontem", emotion: "Frustrado", hintHelp: false },
-  { title: "Leitura: Artigo Científico", score: "8/10", date: "15 Março", emotion: "Focado", hintHelp: false },
-];
+function formatDate(date: Date): string {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+  
+    if (date.toDateString() === today.toDateString()) return "Hoje";
+    if (date.toDateString() === yesterday.toDateString()) return "Ontem";
+    
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
 
 export default async function StudentDashboard() {
   const session = await getServerSession(authOptions);
+  if (!session?.user?.id) redirect('/login');
 
-  if (!session?.user?.id) {
-    redirect('/login');
-  }
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!user) redirect('/login');
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const completedAttempts = await prisma.quizAttempt.findMany({
+    where: { 
+        userId: session.user.id,
+        endTime: { not: null }
+    },
+    orderBy: { startTime: 'desc' },
+    include: {
+      responses: {
+        include: {
+          question: true,
+        },
+      },
+    },
+  }) as QuizAttempt[];
+
+  const totalQuestionsAnswered = completedAttempts.reduce((sum, a) => sum + (a.totalQuestions || 0), 0);
+  const totalCorrect = completedAttempts.reduce((sum, a) => sum + (a.score || 0), 0);
+  const avgScore = totalQuestionsAnswered > 0 ? Math.round((totalCorrect / totalQuestionsAnswered) * 100) : 0;
+  const hintsUsed = completedAttempts.reduce((sum, a) => sum + (a.totalHintsUsed || 0), 0);
+  const totalTimeSeconds = completedAttempts.reduce((sum, a) => {
+    if (a.endTime) {
+      return sum + (a.endTime.getTime() - a.startTime.getTime()) / 1000;
+    }
+    return sum;
+  }, 0);
+  const overallAvgFrustration = completedAttempts.length > 0 
+    ? completedAttempts.reduce((sum, a) => sum + (a.avgFrustration || 0), 0) / completedAttempts.length
+    : 0;
+
+  const kpis = {
+    avgScore: `${avgScore}%`,
+    focusLevel: `${100 - Math.round(overallAvgFrustration)}%`,
+    hintsUsed: hintsUsed,
+    totalTime: formatDuration(Math.round(totalTimeSeconds)),
+  };
+
+  const allResponses = completedAttempts.flatMap(a => a.responses);
+  const responsesByArea = allResponses.reduce((acc, res) => {
+    const area = res.question.area;
+    if (!acc[area]) {
+      acc[area] = { correct: 0, total: 0 };
+    }
+    acc[area].total++;
+    if (res.isCorrect) {
+      acc[area].correct++;
+    }
+    return acc;
+  }, {} as Record<string, { correct: number; total: number }>);
+
+  const skillsBreakdown = Object.entries(responsesByArea).map(([topic, data]) => {
+    const mastery = Math.round((data.correct / data.total) * 100);
+    let color = 'bg-rose-500';
+    if (mastery >= 80) color = 'bg-emerald-500';
+    else if (mastery >= 50) color = 'bg-amber-500';
+    return { topic, mastery, color };
   });
 
-  if (!user) redirect('/login');
+  const recentQuizzes = completedAttempts.slice(0, 5).map(attempt => ({
+    title: `Sessão em ${attempt.responses[0]?.question.area || 'Tópico Misto'}`,
+    score: `${attempt.score}/${attempt.totalQuestions}`,
+    date: formatDate(attempt.startTime),
+    emotion: (attempt.avgFrustration || 0) < 50 ? 'Focado' : 'Frustrado',
+    hintHelp: (attempt.totalHintsUsed || 0) > 0,
+  }));
+
 
   const userName = user.name || user.username;
   const userLevel = formatEnglishLevel(user.englishLevel);
-
-  const kpis = {
-    avgScore: "82%",
-    focusLevel: "88%",
-    hintsUsed: 14,
-    totalTime: "3h 45m"
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans p-4 md:p-8">
@@ -116,7 +179,7 @@ export default async function StudentDashboard() {
             </div>
 
             <div className="space-y-6 mt-2">
-              {SKILLS_BREAKDOWN.map((skill, idx) => (
+              {skillsBreakdown.length > 0 ? skillsBreakdown.map((skill, idx) => (
                 <div key={idx} className="flex flex-col gap-2">
                   <div className="flex justify-between items-center text-sm">
                     <span className="font-medium text-slate-300">{skill.topic}</span>
@@ -128,11 +191,8 @@ export default async function StudentDashboard() {
                       style={{ width: `${skill.mastery}%` }}
                     ></div>
                   </div>
-                  {skill.mastery < 50 && (
-                    <p className="text-xs text-rose-400 mt-1">Recomendamos rever este tópico. O sistema detetou frustração recorrente aqui.</p>
-                  )}
                 </div>
-              ))}
+              )) : <p className="text-slate-400 text-sm text-center py-8">Sem dados de tópicos para mostrar. Complete um quiz!</p>}
             </div>
           </div>
 
@@ -143,7 +203,7 @@ export default async function StudentDashboard() {
             </div>
 
             <div className="flex flex-col gap-5 overflow-y-auto pr-2">
-              {RECENT_QUIZZES.map((quiz, i) => (
+              {recentQuizzes.length > 0 ? recentQuizzes.map((quiz, i) => (
                 <div key={i} className="flex flex-col gap-2 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
                   <div className="flex justify-between items-start">
                     <h4 className="font-semibold text-sm leading-tight text-slate-200">{quiz.title}</h4>
@@ -163,7 +223,7 @@ export default async function StudentDashboard() {
                     )}
                   </div>
                 </div>
-              ))}
+              )) : <p className="text-slate-400 text-sm text-center py-8">Nenhuma atividade recente.</p>}
             </div>
           </div>
 
