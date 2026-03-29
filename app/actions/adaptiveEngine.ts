@@ -95,6 +95,7 @@ export async function submitAnswerAndGetNext(
   attemptId: string,
   currentQuestionId: string,
   isCorrect: boolean,
+  userAnswer: string,
   hintUsed: boolean,
   frustrationLevel: number,
   timeSpentSeconds: number
@@ -105,6 +106,7 @@ export async function submitAnswerAndGetNext(
         attemptId,
         questionId: currentQuestionId,
         isCorrect,
+        userAnswer,
         hintUsed,
         frustrationLevel,
         timeSpentSeconds,

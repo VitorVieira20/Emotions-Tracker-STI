@@ -65,6 +65,7 @@ model QuestionResponse {
   question         Question     @relation(fields: [questionId], references: [id])
   
   isCorrect        Boolean
+  userAnswer       String?
   hintUsed         Boolean      @default(false)
   frustrationLevel Float
   timeSpentSeconds Int

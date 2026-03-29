@@ -29,20 +29,21 @@ export default function OnboardingPage() {
   const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
   const animationFrameRef = useRef<number>(0);
   const collectedScoresRef = useRef<number[]>([]);
-  
+
   const [isCalibrating, setIsCalibrating] = useState(false);
   const [calibrationStage, setCalibrationStage] = useState<'neutral' | 'frustrated' | 'happy' | 'done'>('neutral');
   const [calibrationCountdown, setCalibrationCountdown] = useState(3);
   const [frownBase, setFrownBase] = useState<number | null>(null);
   const [frownMax, setFrownMax] = useState<number | null>(null);
   const [smileMax, setSmileMax] = useState<number | null>(null);
-  
+
   const [mediaPipeLoaded, setMediaPipeLoaded] = useState(false);
   const [camError, setCamError] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [stepError, setStepError] = useState<string | null>(null);
+
   useEffect(() => {
     if (currentStep !== 3) return;
 
@@ -68,7 +69,7 @@ export default function OnboardingPage() {
       stopWebcam();
     };
   }, [currentStep]);
-  
+
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -95,7 +96,7 @@ export default function OnboardingPage() {
     if (results.faceBlendshapes && results.faceBlendshapes.length > 0) {
       const blendshapes = results.faceBlendshapes[0].categories;
       const getScore = (name: string) => blendshapes.find(b => b.categoryName === name)?.score || 0;
-      
+
       let score = 0;
       if (stage === 'neutral' || stage === 'frustrated') {
         score = (getScore('browDownLeft') + getScore('browDownRight')) / 2;
@@ -106,7 +107,7 @@ export default function OnboardingPage() {
     }
     animationFrameRef.current = requestAnimationFrame(() => predictWebcam(stage));
   };
-  
+
   const startCalibration = (stage: 'neutral' | 'frustrated' | 'happy') => {
     setIsCalibrating(true);
     collectedScoresRef.current = [];
@@ -127,7 +128,7 @@ export default function OnboardingPage() {
   const finishCalibration = (stage: 'neutral' | 'frustrated' | 'happy') => {
     cancelAnimationFrame(animationFrameRef.current);
     const averageScore = collectedScoresRef.current.reduce((a, b) => a + b, 0) / (collectedScoresRef.current.length || 1);
-    
+
     if (stage === 'neutral') setFrownBase(averageScore);
     if (stage === 'frustrated') setFrownMax(averageScore);
     if (stage === 'happy') setSmileMax(averageScore);
@@ -138,11 +139,49 @@ export default function OnboardingPage() {
     setCalibrationStage(nextStage as any);
   };
 
-  const nextStep = () => setCurrentStep(prev => (prev < STEPS.length ? prev + 1 : prev));
+  const handleNextStep = () => {
+    setStepError(null); 
+
+    if (currentStep === 1) {
+      if (name.trim() === '') {
+        setStepError('Por favor, preenche o teu nome para avançar.');
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      if (englishLevel.trim() === '') {
+        setStepError('Por favor, seleciona o teu nível de inglês.');
+        return;
+      }
+      if (strongAreas.length === 0) {
+        setStepError('Deves selecionar pelo menos uma área forte.');
+        return;
+      }
+      if (weakAreas.length === 0) {
+        setStepError('Deves selecionar pelo menos uma área a melhorar.');
+        return;
+      }
+    }
+
+    setCurrentStep(prev => (prev < STEPS.length ? prev + 1 : prev));
+  }
+
   const prevStep = () => {
       if (currentStep === 3) stopWebcam();
       setCurrentStep(prev => (prev > 1 ? prev - 1 : prev));
   }
+
+  const isNextButtonDisabled = () => {
+    switch (currentStep) {
+      case 1:
+        return name.trim() === '';
+      case 2:
+        return englishLevel.trim() === '' || strongAreas.length === 0 || weakAreas.length === 0;
+      default:
+        return false;
+    }
+  };
 
   const handleCheckboxChange = (area: string, type: 'strong' | 'weak') => {
     const areas = type === 'strong' ? strongAreas : weakAreas;
@@ -166,10 +205,10 @@ export default function OnboardingPage() {
 
     try {
       const result = await completeOnboarding(formData);
-      
+
       if (result.success) {
         await update({ onboardingCompleted: true }); 
-        
+
         window.location.href = '/dashboard';
       } else {
         setError(result.message || 'Ocorreu um erro desconhecido.');
@@ -197,7 +236,7 @@ export default function OnboardingPage() {
             <div className='space-y-6'>
                 <div>
                     <label htmlFor="english-level" className="text-sm font-medium text-slate-400">Qual o seu nível de inglês (aproximado)?</label>
-                    <select id="english-level" value={englishLevel} onChange={(e) => setEnglishLevel(e.target.value)} className="w-full px-3 py-2 mt-1 text-slate-50 bg-slate-800 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select id="english-level" value={englishLevel} onChange={(e) => setEnglishLevel(e.target.value)} className="w-full px-3 py-2 mt-1 text-slate-50 bg-slate-800 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
                         <option value="">Selecione um nível</option>
                         <option value="A2">A2 (Básico)</option>
                         <option value="B1">B1 (Intermediário)</option>
@@ -209,7 +248,7 @@ export default function OnboardingPage() {
                     <h3 className="text-sm font-medium text-slate-400 mb-2">Quais são as suas áreas mais fortes?</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {SKILLS.map(skill => (
-                            <label key={`strong-${skill}`} className="flex items-center space-x-2 p-2 bg-slate-800 rounded-md cursor-pointer hover:bg-slate-700">
+                            <label key={`strong-${skill}`} className="flex items-center space-x-2 p-2 bg-slate-800 rounded-md cursor-pointer hover:bg-slate-700 transition-colors duration-200">
                                 <input type="checkbox" checked={strongAreas.includes(skill)} onChange={() => handleCheckboxChange(skill, 'strong')} className="form-checkbox h-4 w-4 text-indigo-600 bg-slate-700 border-slate-600 rounded" />
                                 <span className="text-slate-300">{skill}</span>
                             </label>
@@ -220,7 +259,7 @@ export default function OnboardingPage() {
                     <h3 className="text-sm font-medium text-slate-400 mb-2">Quais áreas gostaria de melhorar?</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {SKILLS.map(skill => (
-                            <label key={`weak-${skill}`} className="flex items-center space-x-2 p-2 bg-slate-800 rounded-md cursor-pointer hover:bg-slate-700">
+                            <label key={`weak-${skill}`} className="flex items-center space-x-2 p-2 bg-slate-800 rounded-md cursor-pointer hover:bg-slate-700 transition-colors duration-200">
                                 <input type="checkbox" checked={weakAreas.includes(skill)} onChange={() => handleCheckboxChange(skill, 'weak')} className="form-checkbox h-4 w-4 text-indigo-600 bg-slate-700 border-slate-600 rounded" />
                                 <span className="text-slate-300">{skill}</span>
                             </label>
@@ -239,11 +278,11 @@ export default function OnboardingPage() {
                 {camError && <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center text-center p-4"><p className="text-rose-400">{camError}</p></div>}
                 {!mediaPipeLoaded && !camError && <div className="absolute inset-0 flex items-center justify-center"><p className="text-slate-400">A carregar IA...</p></div>}
             </div>
-            
+
             <div className="h-16">
-                {calibrationStage === 'neutral' && <button onClick={() => startCalibration('neutral')} disabled={isCalibrating || !mediaPipeLoaded} className="w-full py-3 bg-indigo-600 rounded-md text-white font-bold disabled:opacity-50"> {isCalibrating ? `Mantenha o rosto neutro... ${calibrationCountdown}s` : 'Gravar Rosto Neutro'} </button>}
-                {calibrationStage === 'frustrated' && <button onClick={() => startCalibration('frustrated')} disabled={isCalibrating} className="w-full py-3 bg-indigo-600 rounded-md text-white font-bold"> {isCalibrating ? `Finja frustração... ${calibrationCountdown}s` : 'Gravar Rosto Frustrado'} </button>}
-                {calibrationStage === 'happy' && <button onClick={() => startCalibration('happy')} disabled={isCalibrating} className="w-full py-3 bg-indigo-600 rounded-md text-white font-bold"> {isCalibrating ? `Dê um sorriso... ${calibrationCountdown}s` : 'Gravar Rosto Feliz'} </button>}
+                {calibrationStage === 'neutral' && <button onClick={() => startCalibration('neutral')} disabled={isCalibrating || !mediaPipeLoaded} className="w-full py-3 bg-indigo-600 rounded-md text-white font-bold cursor-pointer transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"> {isCalibrating ? `Mantenha o rosto neutro... ${calibrationCountdown}s` : 'Gravar Rosto Neutro'} </button>}
+                {calibrationStage === 'frustrated' && <button onClick={() => startCalibration('frustrated')} disabled={isCalibrating} className="w-full py-3 bg-indigo-600 rounded-md text-white font-bold cursor-pointer transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"> {isCalibrating ? `Finja frustração... ${calibrationCountdown}s` : 'Gravar Rosto Frustrado'} </button>}
+                {calibrationStage === 'happy' && <button onClick={() => startCalibration('happy')} disabled={isCalibrating} className="w-full py-3 bg-indigo-600 rounded-md text-white font-bold cursor-pointer transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"> {isCalibrating ? `Dê um sorriso... ${calibrationCountdown}s` : 'Gravar Rosto Feliz'} </button>}
                 {calibrationStage === 'done' && <p className="text-center text-green-400 font-bold text-lg">Calibração completa!</p>}
             </div>
         </div>
@@ -265,16 +304,18 @@ export default function OnboardingPage() {
             </div>
         </div>
 
-        <div className="min-h-100">
+        <div className="min-h-104 md:min-h-96">
             {renderStepContent()}
         </div>
 
+        {stepError && <p className="text-rose-400 text-sm mt-4 text-center font-medium">{stepError}</p>}
+
         <div className="flex justify-between mt-8">
-          <button onClick={prevStep} disabled={currentStep === 1} className="px-6 py-2 bg-slate-700 rounded-md text-white font-bold disabled:opacity-50">Anterior</button>
+          <button onClick={prevStep} disabled={currentStep === 1} className="px-6 py-2 bg-slate-700 rounded-md text-white font-bold cursor-pointer transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">Anterior</button>
           {currentStep < STEPS.length ? (
-            <button onClick={nextStep} className="px-6 py-2 bg-indigo-600 rounded-md text-white font-bold">Próximo</button>
+            <button onClick={handleNextStep} disabled={isNextButtonDisabled()} className="px-6 py-2 bg-indigo-600 rounded-md text-white font-bold cursor-pointer transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">Próximo</button>
           ) : (
-            <button onClick={handleFinalSubmit} disabled={isLoading || calibrationStage !== 'done'} className="px-6 py-2 bg-green-600 rounded-md text-white font-bold disabled:opacity-50">{isLoading ? 'A guardar...' : 'Concluir'}</button>
+            <button onClick={handleFinalSubmit} disabled={isLoading || calibrationStage !== 'done'} className="px-6 py-2 bg-green-600 rounded-md text-white font-bold cursor-pointer transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? 'A guardar...' : 'Concluir'}</button>
           )}
         </div>
         {error && <p className="text-red-500 text-sm mt-4 text-center">{error}</p>}

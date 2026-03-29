@@ -6,6 +6,7 @@ export type QuestionResponse = {
   frustrationLevel: number,
   hintUsed: boolean,
   isCorrect: boolean,
+  userAnswer: string,
   questionId: string,
   timeSpentSeconds: number,
   question: Question
