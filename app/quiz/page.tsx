@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
@@ -15,6 +15,7 @@ export default function AffectiveQuizRoute() {
   const baselineRef = useRef<{ frownBase: number, frownMax: number } | null>(null);
   const questionStartTimeRef = useRef<number>(Date.now());
   const initializedRef = useRef(false);
+  const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
 
   const [metrics, setMetrics] = useState({ frust: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
@@ -30,6 +31,17 @@ export default function AffectiveQuizRoute() {
   const [isHintActive, setIsHintActive] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
 
+  const stopCamera = useCallback(() => {
+    if (requestRef.current) {
+      cancelAnimationFrame(requestRef.current);
+    }
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
   useEffect(() => {
     const fetchBaseline = async () => {
       const data = await getUserBaseline();
@@ -39,40 +51,43 @@ export default function AffectiveQuizRoute() {
     };
     fetchBaseline();
 
-    let faceLandmarker: FaceLandmarker;
     let lastVideoTime = -1;
 
     const initAI = async () => {
-      const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
-      faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-          delegate: "GPU"
-        },
-        runningMode: "VIDEO",
-        numFaces: 1,
-        outputFaceBlendshapes: true
-      });
-      setIsLoaded(true);
+      try {
+        const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+        faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+            delegate: "GPU"
+          },
+          runningMode: "VIDEO",
+          numFaces: 1,
+          outputFaceBlendshapes: true
+        });
+        setIsLoaded(true);
 
-      if (navigator.mediaDevices?.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.addEventListener("loadeddata", predictWebcam);
+        if (navigator.mediaDevices?.getUserMedia) {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.addEventListener("loadeddata", predictWebcam);
+          }
         }
+      } catch (error) {
+        console.error("Failed to initialize AI or camera:", error);
       }
     };
 
     const predictWebcam = () => {
         const video = videoRef.current;
-        if (!video || !faceLandmarker) return;
+        if (!video || !faceLandmarkerRef.current) return;
   
         const startTimeMs = performance.now();
   
         if (lastVideoTime !== video.currentTime) {
           lastVideoTime = video.currentTime;
-          const results = faceLandmarker.detectForVideo(video, startTimeMs);
+          const results = faceLandmarkerRef.current.detectForVideo(video, startTimeMs);
   
           if (results.faceBlendshapes?.[0]?.categories) {
             const blendshapes = results.faceBlendshapes[0].categories;
@@ -113,18 +128,19 @@ export default function AffectiveQuizRoute() {
       initAI();
   
       return () => {
-        if (requestRef.current) cancelAnimationFrame(requestRef.current);
-        if (videoRef.current?.srcObject) {
-          (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
+        stopCamera();
+        if (videoRef.current) {
+          videoRef.current.removeEventListener("loadeddata", predictWebcam);
         }
       };
-    }, []);
+    }, [stopCamera]);
   
     useEffect(() => {
       if (initializedRef.current) return;
       initializedRef.current = true;
 
       const initializeQuiz = async () => {
+        setIsFetchingNext(true);
         const result = await startAdaptiveQuiz();
         if (result && !result.error) {
           setAttemptId(result.attemptId);
@@ -133,6 +149,7 @@ export default function AffectiveQuizRoute() {
         } else {
           console.error("Failed to start quiz:", result?.error);
         }
+        setIsFetchingNext(false);
       };
       initializeQuiz();
     }, []);
@@ -144,17 +161,20 @@ export default function AffectiveQuizRoute() {
   
       const timeSpentSeconds = Math.round((Date.now() - questionStartTimeRef.current) / 1000);
       const isCorrect = selectedOpt === question.correctOption;
+      const userAnswer = question.options[selectedOpt];
   
       const result = await submitAnswerAndGetNext(
         attemptId,
         question.id,
         isCorrect,
+        userAnswer,
         isHintActive,
         metrics.frust,
         timeSpentSeconds
       );
   
       if (result.finished) {
+        stopCamera();
         setQuizFinished(true);
       } else if (result.nextQuestion) {
         setQuestion(result.nextQuestion);
@@ -165,6 +185,7 @@ export default function AffectiveQuizRoute() {
         questionStartTimeRef.current = Date.now();
       } else {
         console.error("Error fetching next question:", result.error);
+        stopCamera();
         setQuizFinished(true);
       }
   
@@ -175,9 +196,9 @@ export default function AffectiveQuizRoute() {
       <div className="min-h-screen bg-slate-950 text-slate-50 font-sans flex flex-col p-4 md:p-6 relative items-center">
   
         <header className="flex flex-col md:flex-row gap-4 md:gap-0 w-full max-w-7xl justify-between items-center mb-6 md:mb-8 text-center md:text-left">
-          <Link href="/" className="flex items-center justify-center md:justify-start gap-2 text-slate-400 hover:text-white transition-colors w-full md:w-auto">
+          <Link href="/dashboard" className="flex items-center justify-center md:justify-start gap-2 text-slate-400 hover:text-white transition-colors w-full md:w-auto">
             <ChevronLeft size={20} />
-            Voltar ao Monitor
+            Terminar e ir para o Dashboard
           </Link>
           <h1 className="text-lg md:text-xl font-bold w-full md:w-auto">Investigação: Intervenção Adaptativa</h1>
         </header>
@@ -201,7 +222,7 @@ export default function AffectiveQuizRoute() {
             <div className="bg-slate-900 p-4 rounded-2xl border border-white/5 shadow-xl">
               <h2 className="text-xs font-semibold text-slate-500 uppercase mb-3">Motor Biométrico</h2>
               <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden mb-4">
-                {!isLoaded && <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500">A iniciar...</div>}
+                {!isLoaded && <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-500">A iniciar Câmara...</div>}
                 <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover -scale-x-100 opacity-60"></video>
               </div>
               <div className="flex justify-between text-xs mb-1 font-medium">
@@ -257,4 +278,3 @@ export default function AffectiveQuizRoute() {
       </div>
     );
   }
-  

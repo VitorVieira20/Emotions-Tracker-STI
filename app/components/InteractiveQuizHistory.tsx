@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { QuizAttempt } from '@/types/QuizAttempt';
-import { CheckCircle2, XCircle, Lightbulb, Clock, ChevronsRight, BarChart2, Trophy } from 'lucide-react';
+import { CheckCircle2, XCircle, Lightbulb, Clock, ChevronsRight, BarChart2, Trophy, X } from 'lucide-react';
 
 function formatDate(date: Date): string {
     const today = new Date();
@@ -66,14 +66,28 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
                         <h3 className="text-lg font-bold text-slate-50">Detalhes do Quiz</h3>
                         <p className="text-sm text-slate-400">Realizado em {formatDate(selectedAttempt.startTime)}</p>
                     </div>
-                    <button onClick={() => setSelectedAttempt(null)} className="p-2 rounded-full text-slate-400 hover:bg-slate-800">&times;</button>
+                    <button onClick={() => setSelectedAttempt(null)} className="p-2 rounded-full text-slate-400 hover:bg-slate-800 cursor-pointer"><X /></button>
                 </div>
             </div>
             <div className="p-6 space-y-4 overflow-y-auto">
               {selectedAttempt.responses.map((response, idx) => (
                 <div key={response.id} className="p-4 rounded-lg border border-slate-800 bg-slate-950/50">
                   <p className="font-semibold text-slate-100 mb-3">{idx + 1}. {response.question.text}</p>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  
+                  <div className="space-y-2 text-sm mb-4">
+                    {!response.isCorrect && (
+                      <div className="flex items-start gap-2 p-2 rounded-md bg-rose-500/10 text-rose-400">
+                        <XCircle size={16} className="flex-shrink-0 mt-0.5" />
+                        <p><span className="font-medium">A tua resposta:</span> {response.userAnswer || 'Não respondida'}</p>
+                      </div>
+                    )}
+                    <div className="flex items-start gap-2 p-2 rounded-md bg-emerald-500/10 text-emerald-400">
+                      <CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" />
+                      <p><span className="font-medium">{response.isCorrect ? 'A tua resposta' : 'Resposta correta'}:</span> {response.isCorrect ? response.userAnswer : response.question.options[response.question.correctOption]}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm border-t border-slate-800 pt-3">
                     <div className={`flex items-center gap-2 font-medium ${response.isCorrect ? 'text-emerald-400' : 'text-rose-400'}`}>
                       {response.isCorrect ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
                       <span>{response.isCorrect ? 'Correto' : 'Incorreto'}</span>
