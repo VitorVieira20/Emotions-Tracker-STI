@@ -10,6 +10,7 @@ import { Question } from '@/types/Question';
 
 export default function AffectiveQuizRoute() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const requestRef = useRef<number>(0);
   const frustFramesRef = useRef<number>(0);
   const baselineRef = useRef<{ frownBase: number, frownMax: number } | null>(null);
@@ -34,17 +35,38 @@ export default function AffectiveQuizRoute() {
   const stopCamera = useCallback(() => {
     if (requestRef.current) {
       cancelAnimationFrame(requestRef.current);
+      requestRef.current = 0;
     }
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        track.enabled = false;
+      });
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
   }, []);
 
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopCamera();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [stopCamera]);
+
+  useEffect(() => {
+    let isMounted = true;
+
     const fetchBaseline = async () => {
       const data = await getUserBaseline();
+      if (!isMounted) return;
       if (data && data.frownBase !== null && data.frownMax !== null) {
         baselineRef.current = { frownBase: data.frownBase, frownMax: data.frownMax };
       }
@@ -54,8 +76,12 @@ export default function AffectiveQuizRoute() {
     let lastVideoTime = -1;
 
     const initAI = async () => {
+      stopCamera();
+
       try {
         const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
+        if (!isMounted) return;
+
         faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
           baseOptions: {
             modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
@@ -65,10 +91,19 @@ export default function AffectiveQuizRoute() {
           numFaces: 1,
           outputFaceBlendshapes: true
         });
+        
+        if (!isMounted) return;
         setIsLoaded(true);
 
         if (navigator.mediaDevices?.getUserMedia) {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          
+          if (!isMounted) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+
+          streamRef.current = stream;
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
             videoRef.current.addEventListener("loadeddata", predictWebcam);
@@ -80,6 +115,7 @@ export default function AffectiveQuizRoute() {
     };
 
     const predictWebcam = () => {
+        if (!isMounted) return;
         const video = videoRef.current;
         if (!video || !faceLandmarkerRef.current) return;
   
@@ -126,9 +162,12 @@ export default function AffectiveQuizRoute() {
       };
   
       initAI();
+      window.addEventListener('beforeunload', stopCamera);
   
       return () => {
+        isMounted = false;
         stopCamera();
+        window.removeEventListener('beforeunload', stopCamera);
         if (videoRef.current) {
           videoRef.current.removeEventListener("loadeddata", predictWebcam);
         }
