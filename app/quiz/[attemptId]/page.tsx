@@ -291,8 +291,8 @@ export default function AffectiveQuizRoute({ params }: { params: Promise<{ attem
             </div>
           ) : !quizFinished && question ? (
               <>
-                <div className="flex justify-between items-center mb-6 md:mb-8">
-                  <span className="text-xs md:text-sm text-slate-500">Pergunta {questionNumber} de {totalQuestions}</span>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Pergunta {questionNumber} de {totalQuestions}</span>
                   {isHintActive && <span className="text-[10px] md:text-xs font-bold text-sky-400 bg-sky-400/10 px-2 py-1 md:px-3 rounded-full border border-sky-400/20">DICA ATIVA</span>}
                 </div>
   
@@ -308,6 +308,13 @@ export default function AffectiveQuizRoute({ params }: { params: Promise<{ attem
                       {opt}
                     </button>
                   ))}
+                </div>
+
+                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden mt-8">
+                  <div 
+                    className="h-full bg-blue-500 transition-all duration-500 ease-out"
+                    style={{ width: `${(questionNumber / totalQuestions) * 100}%` }}
+                  ></div>
                 </div>
   
                 <button onClick={handleAnswer} disabled={selectedOpt === null || isFetchingNext} className="mt-6 md:mt-8 w-full py-3 md:py-4 rounded-xl bg-slate-100 text-slate-900 font-bold hover:bg-white disabled:opacity-50 transition-all cursor-pointer text-sm md:text-base">
