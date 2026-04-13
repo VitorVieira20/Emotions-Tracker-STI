@@ -9,6 +9,10 @@ export default withAuth(
 
     const { pathname } = req.nextUrl;
 
+    if (!isAuthenticated && pathname.startsWith('/quiz')) {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+
     if (isAuthenticated) {
       const onboardingCompleted = token.onboardingCompleted || false;
 
@@ -22,6 +26,10 @@ export default withAuth(
       }
       
       if (onboardingCompleted && pathname === '/onboarding') {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
+
+      if (onboardingCompleted && (pathname === '/login' || pathname === '/register')) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
