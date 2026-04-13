@@ -52,6 +52,8 @@ model QuizAttempt {
   avgFrustration  Float              @default(0)
   totalHintsUsed  Int                @default(0)
   
+  selectedArea    String?
+
   responses       QuestionResponse[]
 }
 

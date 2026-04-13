@@ -1,12 +1,11 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/app/lib/prisma';
-import { BrainCircuit, Trophy, Target, Clock, Sparkles } from 'lucide-react';
-import LogoutButton from './LogoutButton';
+import { BrainCircuit, Trophy, Target, Clock } from 'lucide-react';
 import { QuizAttempt } from '@/types/QuizAttempt';
 import InteractiveQuizHistory from '../components/InteractiveQuizHistory';
+import DashboardHeader from '../components/DashboardHeader';
 
 const formatEnglishLevel = (level: string | null) => {
     switch (level) {
@@ -72,7 +71,6 @@ export default async function StudentDashboard() {
       totalTime: formatDuration(totalTimeSeconds),
     };
   
-    // Skills Breakdown Calculation
     const allResponses = completedAttempts.flatMap(a => a.responses);
     const responsesByArea = allResponses.reduce((acc, res) => {
       const area = res.question.area;
@@ -98,21 +96,8 @@ export default async function StudentDashboard() {
     return (
         <div className="min-h-screen bg-slate-950 text-slate-50 font-sans p-4 sm:p-6 md:p-8">
             <main className="max-w-7xl mx-auto space-y-8">
-                <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-slate-50">Olá, {userName}</h1>
-                        <p className="text-slate-400 text-sm mt-1">{userLevel}</p>
-                    </div>
-                    <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <Link href="/quiz" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-xl text-white font-bold transition-all shadow-lg shadow-indigo-500/20">
-                            <Sparkles size={18} />
-                            Novo Quiz
-                        </Link>
-                        <LogoutButton />
-                    </div>
-                </header>
+                <DashboardHeader userName={userName} userLevel={userLevel} />
 
-                {/* KPIs Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <KpiCard icon={Trophy} title="Pontuação Média" value={kpis.avgScore} color="amber" />
                     <KpiCard icon={BrainCircuit} title="Nível de Foco (IA)" value={kpis.focusLevel} color="indigo" />
@@ -120,9 +105,7 @@ export default async function StudentDashboard() {
                     <KpiCard icon={Clock} title="Tempo de Estudo" value={kpis.totalTime} color="emerald" />
                 </div>
 
-                {/* Main content grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Skills Breakdown */}
                     <div className="lg:col-span-1 bg-slate-900 p-6 rounded-2xl shadow-lg border border-white/5">
                         <h2 className="text-xl font-bold text-slate-50 mb-6">Domínio por Tópico</h2>
                         <div className="space-y-5">
@@ -143,7 +126,6 @@ export default async function StudentDashboard() {
                         </div>
                     </div>
 
-                    {/* Interactive History */}
                     <div className="lg:col-span-2">
                         <InteractiveQuizHistory attempts={completedAttempts} />
                     </div>
@@ -153,7 +135,6 @@ export default async function StudentDashboard() {
     );
 }
 
-// A simple component for KPI cards to keep the main component cleaner
 function KpiCard({ icon: Icon, title, value, color }: { icon: React.ElementType, title: string, value: string, color: string }) {
     const colors = {
         amber: 'text-amber-400',

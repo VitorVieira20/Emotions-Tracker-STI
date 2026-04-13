@@ -1,14 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, use } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import { getUserBaseline } from '../actions/quiz';
-import { startAdaptiveQuiz, submitAnswerAndGetNext } from '../actions/adaptiveEngine';
+import { getUserBaseline } from '../../actions/quiz';
+import { getQuizAttemptStatus, submitAnswerAndGetNext } from '../../actions/adaptiveEngine';
 import { Question } from '@/types/Question';
 
-export default function AffectiveQuizRoute() {
+export default function AffectiveQuizRoute({ params }: { params: Promise<{ attemptId: string }> }) {
+  const { attemptId } = use(params);
+  const router = useRouter();
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const requestRef = useRef<number>(0);
@@ -21,7 +25,6 @@ export default function AffectiveQuizRoute() {
   const [metrics, setMetrics] = useState({ frust: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const [attemptId, setAttemptId] = useState<string | null>(null);
   const [question, setQuestion] = useState<Question | null>(null);
   const [isFetchingNext, setIsFetchingNext] = useState(false);
   const [questionNumber, setQuestionNumber] = useState(1);
@@ -178,20 +181,28 @@ export default function AffectiveQuizRoute() {
       if (initializedRef.current) return;
       initializedRef.current = true;
 
-      const initializeQuiz = async () => {
+      const loadQuizData = async () => {
         setIsFetchingNext(true);
-        const result = await startAdaptiveQuiz();
+        const result = await getQuizAttemptStatus(attemptId);
+        
         if (result && !result.error) {
-          setAttemptId(result.attemptId);
-          setQuestion(result.firstQuestion);
-          questionStartTimeRef.current = Date.now();
+          if (result.finished) {
+            router.push('/dashboard');
+            return;
+          }
+          if (result.question) {
+            setQuestion(result.question);
+            setQuestionNumber(result.questionNumber || 1);
+            questionStartTimeRef.current = Date.now();
+          }
         } else {
-          console.error("Failed to start quiz:", result?.error);
+          console.error("Failed to load quiz data:", result?.error);
+          router.push('/dashboard');
         }
         setIsFetchingNext(false);
       };
-      initializeQuiz();
-    }, []);
+      loadQuizData();
+    }, [attemptId, router]);
   
     const handleAnswer = async () => {
       if (selectedOpt === null || !attemptId || !question) return;
