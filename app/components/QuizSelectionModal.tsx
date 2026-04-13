@@ -2,27 +2,25 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Sparkles, 
-  BookOpen, 
-  X, 
-  Brain, 
-  ChevronRight, 
-  Type, 
-  Ear, 
-  FileText, 
-  MessageSquare, 
-  PenTool 
-} from 'lucide-react';
+import { Sparkles, BookOpen, X, Brain, ChevronRight, Type, Ear, FileText, MessageSquare, PenTool } from 'lucide-react';
 import { startAdaptiveQuiz } from '../actions/adaptiveEngine';
 
+const AREA_CONFIG: Record<string, { color: string, icon: any }> = {
+  'Listening': { color: '#8B5CF6', icon: Ear },
+  'Reading': { color: '#EF4444', icon: BookOpen },
+  'Writing': { color: '#3B82F6', icon: PenTool },
+  'Speaking': { color: '#F59E0B', icon: MessageSquare },
+  'Grammar': { color: '#10B981', icon: Type },
+  'Vocabulary': { color: '#6366F1', icon: FileText },
+};
+
 const AREAS = [
-  { id: 'Grammar', label: 'Grammar', icon: Type, color: 'text-amber-400' },
-  { id: 'Vocabulary', label: 'Vocabulary', icon: BookOpen, color: 'text-sky-400' },
-  { id: 'Reading', label: 'Reading', icon: FileText, color: 'text-emerald-400' },
-  { id: 'Listening', label: 'Listening', icon: Ear, color: 'text-indigo-400' },
-  { id: 'Speaking', label: 'Speaking', icon: MessageSquare, color: 'text-rose-400' },
-  { id: 'Writing', label: 'Writing', icon: PenTool, color: 'text-purple-400' },
+  { id: 'Grammar', label: 'Grammar' },
+  { id: 'Vocabulary', label: 'Vocabulary' },
+  { id: 'Reading', label: 'Reading' },
+  { id: 'Listening', label: 'Listening' },
+  { id: 'Speaking', label: 'Speaking' },
+  { id: 'Writing', label: 'Writing' },
 ];
 
 interface QuizSelectionModalProps {
@@ -55,15 +53,15 @@ export default function QuizSelectionModal({ isOpen, onClose }: QuizSelectionMod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 h-full">
-      <div 
+      <div
         className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300 cursor-pointer"
         onClick={onClose}
       />
-      
+
       <div className="relative bg-slate-900 border border-white/10 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="p-6 border-b border-white/5 flex justify-between items-center">
           <h2 className="text-xl font-bold text-slate-50">Escolha o seu treino</h2>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
@@ -106,17 +104,30 @@ export default function QuizSelectionModal({ isOpen, onClose }: QuizSelectionMod
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              {AREAS.map((area) => (
-                <button
-                  key={area.id}
-                  onClick={() => handleStartQuiz(area.id)}
-                  disabled={isLoading}
-                  className="flex flex-col items-center gap-3 p-4 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-2xl transition-all group cursor-pointer"
-                >
-                  <area.icon className={`${area.color} group-hover:scale-110 transition-transform`} size={28} />
-                  <span className="text-sm font-medium text-slate-300">{area.label}</span>
-                </button>
-              ))}
+              {AREAS.map((area) => {
+                const config = AREA_CONFIG[area.id];
+                const Icon = config.icon;
+
+                return (
+                  <button
+                    key={area.id}
+                    className="p-4 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="p-2 rounded-lg"
+                        style={{ backgroundColor: `${config.color}20` }}
+                      >
+                        <Icon size={18} style={{ color: config.color }} />
+                      </div>
+
+                      <span style={{ color: config.color }}>
+                        {area.label}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
               <button
                 onClick={() => setView('main')}
                 className="col-span-2 mt-4 text-sm text-slate-400 hover:text-white transition-colors cursor-pointer"

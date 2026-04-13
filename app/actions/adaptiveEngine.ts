@@ -59,10 +59,17 @@ export async function getQuizAttemptStatus(attemptId: string) {
       const user = attempt.user;
       if (!user) throw new Error('User not found');
 
+      const focusArea = attempt.selectedArea || 'Grammar';
+      
+      const skillLevel = await prisma.userSkillLevel.findFirst({
+        where: { userId: session.user.id, area: { equals: focusArea, mode: 'insensitive' } }
+      });
+      const effectiveLevel = skillLevel ? skillLevel.level : user.englishLevel!;
+
       const questions = await prisma.question.findMany({
         where: {
-          cefrLevel: user.englishLevel!,
-          area: { equals: attempt.selectedArea || 'Grammar', mode: 'insensitive' },
+          cefrLevel: effectiveLevel,
+          area: { equals: focusArea, mode: 'insensitive' },
         },
         take: 20
       });
@@ -74,7 +81,7 @@ export async function getQuizAttemptStatus(attemptId: string) {
       if (!firstQuestion) {
           // Absolute fallback
           const anyQuestion = await prisma.question.findFirst({
-              where: { cefrLevel: user.englishLevel! }
+              where: { cefrLevel: effectiveLevel }
           });
           return { finished: false, question: anyQuestion, questionNumber: 1 };
       }
@@ -161,6 +168,11 @@ export async function submitAnswerAndGetNext(
 
     const focusArea = attempt.selectedArea || currentQuestion.area;
 
+    const skillLevel = await prisma.userSkillLevel.findFirst({
+      where: { userId: attempt.userId, area: { equals: focusArea, mode: 'insensitive' } }
+    });
+    const effectiveLevel = skillLevel ? skillLevel.level : attempt.user.englishLevel!;
+
     let nextDifficulty: Difficulty = currentQuestion.difficulty as Difficulty;
     const currentDifficulty = nextDifficulty;
 
@@ -185,7 +197,7 @@ export async function submitAnswerAndGetNext(
 
     let nextQuestions = await prisma.question.findMany({
       where: {
-        cefrLevel: currentQuestion.cefrLevel,
+        cefrLevel: effectiveLevel,
         area: { equals: focusArea, mode: 'insensitive' },
         difficulty: nextDifficulty,
         id: { notIn: answeredQuestionIds },
@@ -195,14 +207,14 @@ export async function submitAnswerAndGetNext(
     if (nextQuestions.length === 0) {
       const weakAreas = attempt.user.weakAreas || [];
       const cefrLevels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-      const currentLevelIndex = cefrLevels.indexOf(currentQuestion.cefrLevel);
+      const currentLevelIndex = cefrLevels.indexOf(effectiveLevel);
       const levelBelow = currentLevelIndex > 0 ? cefrLevels[currentLevelIndex - 1] : null;
       const levelAbove = currentLevelIndex < cefrLevels.length - 1 ? cefrLevels[currentLevelIndex + 1] : null;
 
       if (weakAreas.length > 0 && !attempt.selectedArea) {
         nextQuestions = await prisma.question.findMany({
           where: {
-            cefrLevel: currentQuestion.cefrLevel,
+            cefrLevel: effectiveLevel,
             area: { in: weakAreas },
             id: { notIn: answeredQuestionIds },
           }
@@ -212,7 +224,7 @@ export async function submitAnswerAndGetNext(
       if (nextQuestions.length === 0) {
         nextQuestions = await prisma.question.findMany({
           where: {
-            cefrLevel: currentQuestion.cefrLevel,
+            cefrLevel: effectiveLevel,
             area: { equals: focusArea, mode: 'insensitive' },
             id: { notIn: answeredQuestionIds },
           }

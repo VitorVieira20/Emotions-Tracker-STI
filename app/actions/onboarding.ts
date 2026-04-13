@@ -21,6 +21,8 @@ export async function completeOnboarding(formData: FormData) {
     const frownMax = parseFloat(formData.get('frownMax') as string);
     const smileMax = parseFloat(formData.get('smileMax') as string);
 
+    const areas = ['Listening', 'Reading', 'Writing', 'Speaking', 'Grammar', 'Vocabulary'];
+
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
@@ -32,6 +34,14 @@ export async function completeOnboarding(formData: FormData) {
         frownMax,
         smileMax,
         onboardingCompleted: true,
+        skillLevels: {
+          createMany: {
+            data: areas.map(area => ({
+              area,
+              level: englishLevel,
+            }))
+          }
+        }
       },
     });
 

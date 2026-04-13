@@ -2,22 +2,11 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/app/lib/prisma';
-import {
-  BrainCircuit,
-  Trophy,
-  Target,
-  Clock,
-  Ear,
-  BookOpen,
-  PenTool,
-  MessageSquare,
-  Type,
-  FileText,
-  ChevronRight
-} from 'lucide-react';
+import { BrainCircuit, Trophy, Target, Clock, Ear, BookOpen, PenTool, MessageSquare, Type, FileText, ChevronRight } from 'lucide-react';
 import { QuizAttempt } from '@/types/QuizAttempt';
 import InteractiveQuizHistory from '../components/InteractiveQuizHistory';
 import DashboardHeader from '../components/DashboardHeader';
+import LevelUpButton from '../components/LevelUpButton';
 
 const AREA_CONFIG: Record<string, { color: string, icon: any }> = {
   'Listening': { color: '#8B5CF6', icon: Ear },
@@ -54,7 +43,10 @@ export default async function StudentDashboard() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect('/login');
 
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    include: { skillLevels: true }
+  });
   if (!user) redirect('/login');
 
   const completedAttempts = await prisma.quizAttempt.findMany({
@@ -95,52 +87,57 @@ export default async function StudentDashboard() {
 
   const areas = ['Listening', 'Reading', 'Writing', 'Speaking', 'Grammar', 'Vocabulary'];
 
-  // 1. Get total questions per area for the user's level
-  const totalQuestionsByArea = await prisma.question.groupBy({
-    by: ['area'],
-    where: { cefrLevel: user.englishLevel || 'B1' },
-    _count: { _all: true }
-  });
+  const skillsBreakdown = await Promise.all(areas.map(async (areaName) => {
+    const skillLevelObj = user.skillLevels.find(sl => sl.area === areaName);
+    const areaLevel = skillLevelObj?.level || user.englishLevel || 'A1';
 
-  // 2. Get correctly answered unique questions by user for this level
-  const correctQuestions = await prisma.question.findMany({
-    where: {
-      cefrLevel: user.englishLevel || 'B1',
-      responses: {
-        some: {
-          isCorrect: true,
-          attempt: { userId: session.user.id }
+    const totalInLevel = await prisma.question.count({
+      where: { area: areaName, cefrLevel: areaLevel }
+    });
+
+    const correctInLevel = await prisma.question.count({
+      where: {
+        area: areaName,
+        cefrLevel: areaLevel,
+        responses: {
+          some: {
+            isCorrect: true,
+            attempt: { userId: session.user.id }
+          }
         }
       }
-    },
-    select: { area: true, id: true }
-  });
+    });
 
-  const skillsBreakdown = areas.map(areaName => {
-    const totalInLevel = totalQuestionsByArea.find(q => q.area === areaName)?._count._all || 0;
-    const correctInLevel = correctQuestions.filter(q => q.area === areaName).length;
-    const percentage = totalInLevel > 0 ? Math.round((correctInLevel / totalInLevel) * 100) : 0;
+    const mastery = totalInLevel > 0 ? Math.round((correctInLevel / totalInLevel) * 100) : 0;
+
+    const nextLevelMap: Record<string, string> = {
+      'A1': 'A2', 'A2': 'B1', 'B1': 'B2', 'B2': 'C1', 'C1': 'C2'
+    };
+    const nextLevel = nextLevelMap[areaLevel];
+    const canLevelUp = mastery === 100 && !!nextLevel;
 
     const config = AREA_CONFIG[areaName] || { color: '#94a3b8', icon: Target };
 
     return {
       topic: areaName,
-      mastery: percentage,
+      level: areaLevel,
+      mastery,
+      canLevelUp,
+      nextLevel,
       color: config.color,
       icon: config.icon,
       totalInLevel,
       correctInLevel
     };
-  });
+  }));
 
   const userName = user.name || user.username;
-  const userLevel = formatEnglishLevel(user.englishLevel);
+  const userLevelFormatted = formatEnglishLevel(user.englishLevel);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 font-sans p-4 sm:p-6 md:p-8">
       <main className="max-w-7xl mx-auto space-y-8">
-        <DashboardHeader userName={userName} userLevel={userLevel} />
-
+        <DashboardHeader userName={userName} userLevel={userLevelFormatted} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <KpiCard icon={Trophy} title="Pontuação Média" value={kpis.avgScore} color="amber" />
@@ -148,7 +145,6 @@ export default async function StudentDashboard() {
           <KpiCard icon={Target} title="Dicas Utilizadas" value={kpis.hintsUsed.toString()} color="sky" />
           <KpiCard icon={Clock} title="Tempo de Estudo" value={kpis.totalTime} color="emerald" />
         </div>
-
 
         <div className="space-y-8">
           <div className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-white/5">
@@ -160,7 +156,7 @@ export default async function StudentDashboard() {
             </div>
             <div className="space-y-6 flex-1">
               {skillsBreakdown.map((skill) => (
-                <div key={skill.topic} className="group cursor-pointer">
+                <div key={skill.topic} className="group p-1">
                   <div className="flex justify-between items-end mb-2">
                     <div className="flex items-center gap-3">
                       <div className="p-2 rounded-lg bg-slate-800/50 text-slate-400 group-hover:bg-slate-800 transition-colors">
@@ -168,7 +164,7 @@ export default async function StudentDashboard() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-200">{skill.topic}</p>
-                        <p className="text-[10px] text-slate-500 font-medium">Nível {user.englishLevel} • {skill.correctInLevel}/{skill.totalInLevel}</p>
+                        <p className="text-[10px] text-slate-500 font-medium">Nível {skill.level} • {skill.correctInLevel}/{skill.totalInLevel}</p>
                       </div>
                     </div>
                     <p className="text-xs font-bold text-slate-400">{skill.mastery}% Completo</p>
@@ -182,6 +178,9 @@ export default async function StudentDashboard() {
                       }}
                     ></div>
                   </div>
+                  {skill.canLevelUp && skill.nextLevel && (
+                    <LevelUpButton area={skill.topic} nextLevel={skill.nextLevel} />
+                  )}
                 </div>
               ))}
               {skillsBreakdown.length === 0 && (

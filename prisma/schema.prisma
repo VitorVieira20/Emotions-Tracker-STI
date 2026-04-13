@@ -15,6 +15,7 @@ model User {
   passwordHash          String
   createdAt             DateTime  @default(now())
   quizAttempts          QuizAttempt[]
+  skillLevels           UserSkillLevel[]
   name                  String?
   englishLevel          String?
   strongAreas           String[]
@@ -23,6 +24,17 @@ model User {
   frownBase             Float?
   frownMax              Float?
   smileMax              Float?
+}
+
+model UserSkillLevel {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  area      String
+  level     String
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, area])
 }
 
 model Question {

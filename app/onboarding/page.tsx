@@ -211,8 +211,6 @@ export default function OnboardingPage() {
     formData.append('frownMax', String(frownMax ?? 0));
     formData.append('smileMax', String(smileMax ?? 0));
 
-    console.log(formData)
-
     try {
       const result = await completeOnboarding(formData);
 

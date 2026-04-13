@@ -8,6 +8,7 @@ export async function initializeQuiz(userId: string, selectedArea?: string) {
       englishLevel: true,
       strongAreas: true,
       weakAreas: true,
+      skillLevels: true,
     },
   });
 
@@ -18,27 +19,28 @@ export async function initializeQuiz(userId: string, selectedArea?: string) {
   let focusArea: string;
   let targetDifficulty: Difficulty;
 
-  // 1. STRICT AREA OVERRIDE
   if (selectedArea) {
     focusArea = selectedArea;
     targetDifficulty = 'Medium';
+    
+    const skillLevel = user.skillLevels.find(sl => sl.area.toLowerCase() === focusArea.toLowerCase());
+    const effectiveLevel = skillLevel?.level || user.englishLevel;
 
-    // Logic for Manual Mode: Strictly use the selected area
     const questions = await prisma.question.findMany({
       where: {
-        cefrLevel: user.englishLevel,
-        area: { equals: focusArea, mode: 'insensitive' }, // String Normalization
+        cefrLevel: effectiveLevel,
+        area: { equals: focusArea, mode: 'insensitive' },
         difficulty: targetDifficulty,
       },
     });
 
     if (questions.length === 0) {
-      console.warn(`No questions found for ${focusArea} at level ${user.englishLevel}. Trying fallback within area.`);
+      console.warn(`No questions found for ${focusArea} at level ${effectiveLevel}. Trying fallback within area.`);
       
-      // Fallback 1: Same area, any difficulty at user level
+      // Fallback 1: Same area, any difficulty at effective level
       const fallbackSameLevel = await prisma.question.findMany({
         where: {
-          cefrLevel: user.englishLevel,
+          cefrLevel: effectiveLevel,
           area: { equals: focusArea, mode: 'insensitive' },
         },
       });
@@ -76,7 +78,7 @@ export async function initializeQuiz(userId: string, selectedArea?: string) {
     return { attemptId: quizAttempt.id, firstQuestion };
 
   } else {
-    // 2. ADAPTIVE MODE (Original logic)
+    // 2. ADAPTIVE MODE (Automatic)
     const useWeakArea = Math.random() > 0.5;
     if (useWeakArea && user.weakAreas.length > 0) {
       focusArea = user.weakAreas[Math.floor(Math.random() * user.weakAreas.length)];
@@ -89,10 +91,13 @@ export async function initializeQuiz(userId: string, selectedArea?: string) {
       targetDifficulty = 'Easy';
     }
 
+    const skillLevel = user.skillLevels.find(sl => sl.area.toLowerCase() === focusArea.toLowerCase());
+    const effectiveLevel = skillLevel?.level || user.englishLevel;
+
     const questions = await prisma.question.findMany({
       where: {
-        cefrLevel: user.englishLevel,
-        area: focusArea,
+        cefrLevel: effectiveLevel,
+        area: { equals: focusArea, mode: 'insensitive' },
         difficulty: targetDifficulty,
       },
     });
@@ -100,12 +105,23 @@ export async function initializeQuiz(userId: string, selectedArea?: string) {
     if (questions.length === 0) {
       const fallbackQuestions = await prisma.question.findMany({
         where: {
-          cefrLevel: user.englishLevel,
+          cefrLevel: effectiveLevel,
           difficulty: 'Easy',
         },
       });
       if (fallbackQuestions.length === 0) {
-        throw new Error('No questions found for this user level.');
+        // Ultimate fallback to global level if specific area level has no easy questions
+        const globalFallback = await prisma.question.findMany({
+            where: { cefrLevel: user.englishLevel, difficulty: 'Easy' }
+        });
+        
+        if (globalFallback.length === 0) throw new Error('No questions found.');
+        
+        const firstQuestion = globalFallback[Math.floor(Math.random() * globalFallback.length)];
+        const quizAttempt = await prisma.quizAttempt.create({
+            data: { userId: userId, selectedArea: null },
+        });
+        return { attemptId: quizAttempt.id, firstQuestion };
       }
       const firstQuestion = fallbackQuestions[Math.floor(Math.random() * fallbackQuestions.length)];
       const quizAttempt = await prisma.quizAttempt.create({
