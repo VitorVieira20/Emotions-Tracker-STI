@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/app/lib/prisma';
-import { BrainCircuit, Trophy, Target, Clock, Ear, BookOpen, PenTool, MessageSquare, Type, FileText, ChevronRight } from 'lucide-react';
+import { BrainCircuit, Trophy, Target, Clock, Ear, BookOpen, PenTool, MessageSquare, Type, FileText, ChevronRight, Info } from 'lucide-react';
 import { QuizAttempt } from '@/types/QuizAttempt';
 import InteractiveQuizHistory from '../components/InteractiveQuizHistory';
 import DashboardHeader from '../components/DashboardHeader';
@@ -147,46 +147,87 @@ export default async function StudentDashboard() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-white/5">
-            <div className="flex justify-between items-start mb-6">
-              <h2 className="text-xl font-bold text-slate-50">Progresso por Componente</h2>
-              <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1">
-                Clica para detalhes <ChevronRight size={10} />
+          <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-bold text-slate-50">Progresso por Tópico</h2>
+                <div className="group relative">
+                  <Info size={14} className="text-slate-500 cursor-help" />
+                  <div className="absolute bottom-full left-0 mb-2 w-64 p-3 bg-slate-800 text-[10px] leading-relaxed text-slate-300 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-white/5 shadow-2xl backdrop-blur-md">
+                    Esta barra mostra o teu domínio do nível atual. Chega aos 100% para subir de nível e desbloquear novos desafios.
+                  </div>
+                </div>
+              </div>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] flex items-center gap-1">
+                Análise Detalhada <ChevronRight size={10} />
               </span>
             </div>
-            <div className="space-y-6 flex-1">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {skillsBreakdown.map((skill) => (
-                <div key={skill.topic} className="group p-1">
-                  <div className="flex justify-between items-end mb-2">
+                <div key={skill.topic} className="group bg-slate-900/80 border border-white/10 p-5 rounded-2xl transition-all duration-300 hover:border-white/20 hover:bg-slate-900 hover:shadow-2xl hover:shadow-black/40 relative overflow-hidden">
+                  <div className="absolute -right-8 -top-8 w-24 h-24 blur-[60px] opacity-10 rounded-full" style={{ backgroundColor: skill.color }}></div>
+
+                  <div className="flex justify-between items-center mb-5">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-slate-800/50 text-slate-400 group-hover:bg-slate-800 transition-colors">
-                        <skill.icon size={18} style={{ color: skill.color }} />
+                      <div className="p-2.5 rounded-xl bg-slate-800/50 border border-white/5 transition-transform group-hover:scale-110" style={{ color: skill.color }}>
+                        <skill.icon size={20} />
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-200">{skill.topic}</p>
-                        <p className="text-[10px] text-slate-500 font-medium">Nível {skill.level} • {skill.correctInLevel}/{skill.totalInLevel}</p>
-                      </div>
+                      <span className="font-bold text-slate-100 tracking-tight">{skill.topic}</span>
                     </div>
-                    <p className="text-xs font-bold text-slate-400">{skill.mastery}% Completo</p>
+                    <div className="px-3 py-1 rounded-lg bg-slate-800 border border-white/5 text-[10px] font-black text-slate-300 shadow-inner">
+                      NÍVEL {skill.level}
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(0,0,0,0.5)]"
-                      style={{
-                        width: `${skill.mastery}%`,
-                        backgroundColor: skill.color
-                      }}
-                    ></div>
+
+                  <div className="space-y-4">
+                    <div className="relative h-3 w-full bg-slate-950 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                      <div
+                        className="h-full rounded-full transition-all duration-1000 ease-out relative"
+                        style={{
+                          width: `${skill.mastery}%`,
+                          backgroundColor: skill.color,
+                          boxShadow: `0 0 15px ${skill.color}44`
+                        }}
+                      ></div>
+                    </div>
+
+                    <div className="flex justify-between items-center px-1">
+                      {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((l) => (
+                        <div key={l} className="flex flex-col items-center gap-1">
+                          <div className={`w-0.5 h-1 rounded-full ${l === skill.level ? 'bg-white' : 'bg-slate-800'}`}></div>
+                          <span className={`text-[11px] font-black tracking-tighter transition-colors ${l === skill.level ? 'text-white scale-110' : 'text-slate-600'}`}>
+                            {l}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+
+                  <div className="mt-5 pt-4 border-t border-white/5 flex justify-between items-center">
+                    <span className="text-[13px] text-slate-500 font-bold uppercase tracking-wider">
+                      {skill.correctInLevel} de {skill.totalInLevel} Domínio
+                    </span>
+                    <span className="text-[12px] font-black px-2 py-0.5 rounded bg-slate-950 border border-white/5" style={{ color: skill.color }}>
+                      {skill.mastery}%
+                    </span>
+                  </div>
+
                   {skill.canLevelUp && skill.nextLevel && (
-                    <LevelUpButton area={skill.topic} nextLevel={skill.nextLevel} />
+                    <div className="mt-4 animate-pulse">
+                      <LevelUpButton area={skill.topic} nextLevel={skill.nextLevel} />
+                    </div>
                   )}
                 </div>
               ))}
-              {skillsBreakdown.length === 0 && (
-                <p className="text-slate-400 text-center py-8">A carregar dados de progresso...</p>
-              )}
             </div>
+
+            {skillsBreakdown.length === 0 && (
+              <div className="text-center py-12">
+                <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-slate-500 text-sm font-medium">A carregar métricas de progresso...</p>
+              </div>
+            )}
           </div>
 
           <div>
