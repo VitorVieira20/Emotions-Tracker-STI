@@ -111,7 +111,9 @@ export default function QuizSelectionModal({ isOpen, onClose }: QuizSelectionMod
                 return (
                   <button
                     key={area.id}
-                    className="p-4 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition cursor-pointer"
+                    onClick={() => handleStartQuiz(area.id)}
+                    disabled={isLoading}
+                    className="p-4 rounded-xl border border-white/10 bg-slate-900 hover:bg-slate-800 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -121,7 +123,7 @@ export default function QuizSelectionModal({ isOpen, onClose }: QuizSelectionMod
                         <Icon size={18} style={{ color: config.color }} />
                       </div>
 
-                      <span style={{ color: config.color }}>
+                      <span style={{ color: config.color }} className="font-medium">
                         {area.label}
                       </span>
                     </div>
