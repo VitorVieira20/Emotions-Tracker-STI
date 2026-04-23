@@ -97,7 +97,7 @@ export default function QuizSelectionModal({ isOpen, onClose }: QuizSelectionMod
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-slate-50 text-lg">Área Específica</h3>
-                  <p className="text-slate-400 text-sm mt-1">Foque o seu estudo num tópico específico para dominar a matéria.</p>
+                  <p className="text-slate-400 text-sm mt-1">Foque o seu estudo num componente específico para dominar a matéria.</p>
                 </div>
                 <ChevronRight className="self-center text-slate-500 group-hover:text-slate-300 transition-colors" />
               </button>

@@ -136,9 +136,11 @@ export async function submitAnswerAndGetNext(
     if (responseCount >= QUIZ_LENGTH) {
       const allResponses = await prisma.questionResponse.findMany({
         where: { attemptId },
-      }) as QuestionResponse[];
+        include: { question: true }
+      }) as unknown as QuestionResponse[];
       
       const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);
+      const totalTimeSpent = allResponses.reduce((acc, r) => acc + (r.timeSpentSeconds || 0), 0);
 
       await prisma.quizAttempt.update({
         where: { id: attemptId },
@@ -150,7 +152,16 @@ export async function submitAnswerAndGetNext(
           totalHintsUsed: totalHints
         },
       });
-      return { finished: true };
+      return { 
+        finished: true, 
+        stats: { 
+          score: finalScore, 
+          totalQuestions: allResponses.length, 
+          totalHints, 
+          avgFrustration,
+          totalTimeSpent 
+        } 
+      };
     }
 
     const currentQuestion = await prisma.question.findUnique({
@@ -232,7 +243,7 @@ export async function submitAnswerAndGetNext(
       }
 
       if (nextQuestions.length === 0 && (levelBelow || levelAbove)) {
-        const orConditions = [];
+        const orConditions: any[] = [];
         if (levelBelow) orConditions.push({ cefrLevel: levelBelow, difficulty: 'Hard', area: { equals: focusArea, mode: 'insensitive' } });
         if (levelAbove) orConditions.push({ cefrLevel: levelAbove, difficulty: 'Easy', area: { equals: focusArea, mode: 'insensitive' } });
 
@@ -248,9 +259,11 @@ export async function submitAnswerAndGetNext(
     if (nextQuestions.length === 0) {
       const allResponses = await prisma.questionResponse.findMany({
         where: { attemptId },
-      }) as QuestionResponse[];
+        include: { question: true }
+      }) as unknown as QuestionResponse[];
 
       const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);
+      const totalTimeSpent = allResponses.reduce((acc, r) => acc + (r.timeSpentSeconds || 0), 0);
 
       await prisma.quizAttempt.update({
         where: { id: attemptId },
@@ -263,7 +276,16 @@ export async function submitAnswerAndGetNext(
         },
       });
 
-      return { finished: true };
+      return { 
+        finished: true, 
+        stats: { 
+          score: finalScore, 
+          totalQuestions: allResponses.length, 
+          totalHints, 
+          avgFrustration,
+          totalTimeSpent 
+        } 
+      };
     }
 
     const nextQuestion = nextQuestions[Math.floor(Math.random() * nextQuestions.length)];

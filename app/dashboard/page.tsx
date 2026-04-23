@@ -149,7 +149,7 @@ export default async function StudentDashboard() {
         <div className="space-y-8">
           <div className="bg-slate-900 p-6 rounded-2xl shadow-lg border border-white/5">
             <div className="flex justify-between items-start mb-6">
-              <h2 className="text-xl font-bold text-slate-50">Progresso por Tópico</h2>
+              <h2 className="text-xl font-bold text-slate-50">Progresso por Componente</h2>
               <span className="text-[10px] text-slate-500 font-medium uppercase tracking-wider flex items-center gap-1">
                 Clica para detalhes <ChevronRight size={10} />
               </span>
