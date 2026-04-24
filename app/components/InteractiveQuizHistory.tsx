@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { QuizAttempt } from '@/types/QuizAttempt';
 import {
   CheckCircle2, XCircle, Lightbulb, Clock, ChevronsRight,
-  BarChart2, Trophy, X, Brain, Calendar, Info
+  Brain, Calendar, Info, X
 } from 'lucide-react';
 import {
-  Ear, BookOpen, PenTool, MessageSquare, Type, FileText, Target
+  Ear, BookOpen, PenTool, MessageSquare, Type, FileText
 } from 'lucide-react';
 
 const AREA_CONFIG: Record<string, { color: string, icon: any, label: string }> = {
@@ -30,6 +31,25 @@ function formatTime(date: Date): string {
 export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAttempt[] }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
   const [selectedAttempt, setSelectedAttempt] = useState<QuizAttempt | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (selectedAttempt) {
+      document.body.style.overflow = 'hidden';
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setSelectedAttempt(null);
+      };
+      window.addEventListener('keydown', handleEsc);
+      return () => {
+        document.body.style.overflow = 'unset';
+        window.removeEventListener('keydown', handleEsc);
+      };
+    }
+  }, [selectedAttempt]);
 
   const attemptsByDate = useMemo(() => {
     const groups: Record<string, QuizAttempt[]> = {};
@@ -209,13 +229,24 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
         </div>
       </div>
 
-      {/* Detail Modal (Preserved logic) */}
-      {selectedAttempt && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={() => setSelectedAttempt(null)}>
-          <div className="bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      {/* Detail Modal via Portal */}
+      {selectedAttempt && mounted && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300" 
+            onClick={() => setSelectedAttempt(null)}
+          />
+          
+          {/* Modal Container */}
+          <div 
+            className="relative bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Glow */}
             <div className="absolute -left-20 -top-20 w-64 h-64 bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
 
+            {/* Header */}
             <div className="p-6 border-b border-white/5 relative z-10 flex justify-between items-center bg-slate-900/50 backdrop-blur-md">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-2xl bg-slate-950 border border-white/5" style={{ color: (selectedAttempt.selectedArea ? AREA_CONFIG[selectedAttempt.selectedArea]?.color : '#6366f1') }}>
@@ -229,9 +260,16 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">{formatDate(new Date(selectedAttempt.startTime))} • {formatTime(new Date(selectedAttempt.startTime))}</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedAttempt(null)} className="p-2 rounded-full text-slate-500 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"><X size={20} /></button>
+              <button 
+                onClick={() => setSelectedAttempt(null)} 
+                className="p-2 rounded-full text-slate-500 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+                title="Fechar (Esc)"
+              >
+                <X size={20} />
+              </button>
             </div>
 
+            {/* Body */}
             <div className="p-6 space-y-4 overflow-y-auto relative z-10 custom-scrollbar">
               {selectedAttempt.responses.map((response, idx) => (
                 <div key={response.id} className="p-5 rounded-2xl border border-white/5 bg-slate-950/40 backdrop-blur-sm group hover:border-white/10 transition-all">
@@ -284,7 +322,8 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
               ))}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
