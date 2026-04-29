@@ -24,6 +24,24 @@ const allQuestions = [
   ...c2Questions,
 ];
 
+const transformedQuestions = allQuestions.map(q => {
+  if (q.area === 'Listening') {
+    const audioMatch = q.text.match(/\(Audio:\s*'(.+?)'\)/);
+    if (audioMatch) {
+      const audioText = audioMatch[1];
+      let cleanedText = q.text.replace(/[:\s'"]+\(Audio:\s*'.+?'\)['"\s.]+/g, '. ').trim();
+      cleanedText = cleanedText.replace(/\.\s+\./g, '.').replace(/\s+/g, ' ');
+      
+      return {
+        ...q,
+        text: cleanedText,
+        audioText: audioText
+      };
+    }
+  }
+  return q;
+});
+
 async function main() {
   console.log('Starting the seeding process...');
 
@@ -31,15 +49,15 @@ async function main() {
   await prisma.question.deleteMany();
   console.log('All existing questions have been deleted.');
 
-  if (allQuestions.length === 0) {
+  if (transformedQuestions.length === 0) {
     console.log('No questions to seed. Please populate the seed files.');
     return;
   }
   
-  console.log(`Seeding database with ${allQuestions.length} questions...`);
+  console.log(`Seeding database with ${transformedQuestions.length} questions...`);
   
   const result = await prisma.question.createMany({
-    data: allQuestions,
+    data: transformedQuestions,
     skipDuplicates: true,
   });
 

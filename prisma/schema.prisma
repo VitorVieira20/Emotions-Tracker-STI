@@ -46,6 +46,8 @@ model Question {
   area          String
   difficulty    String
   hint          String
+  audioUrl      String?
+  audioText     String?
   createdAt     DateTime @default(now())
 
   responses QuestionResponse[]

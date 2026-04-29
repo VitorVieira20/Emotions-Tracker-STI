@@ -10,7 +10,7 @@ import { getUserBaseline } from '../../actions/quiz';
 import { getQuizAttemptStatus, submitAnswerAndGetNext, startAdaptiveQuiz } from '../../actions/adaptiveEngine';
 import { Question } from '@/types/Question';
 import SummaryView from '@/app/components/SummaryView';
-
+import ListeningPlayer from '@/app/components/ListeningPlayer';
 
 export default function AffectiveQuizRoute({ params }: { params: Promise<{ attemptId: string }> }) {
   const { attemptId } = use(params);
@@ -339,7 +339,21 @@ export default function AffectiveQuizRoute({ params }: { params: Promise<{ attem
                 {isHintActive && <span className="text-[10px] md:text-xs font-bold text-sky-400 bg-sky-400/10 px-2 py-1 md:px-3 rounded-full border border-sky-400/20">DICA ATIVA</span>}
               </div>
 
-              <h2 className="text-xl md:text-2xl font-semibold leading-relaxed mb-6 md:mb-8">{question.text}</h2>
+              <h2 className="text-xl md:text-2xl font-semibold leading-relaxed mb-6">
+                {question.area === 'Listening' 
+                  ? (question.text.replace(/\(Audio:\s*'.+?'\)/g, '').trim() || 'Listen to the audio transcript.')
+                  : question.text}
+              </h2>
+
+              {question.area === 'Listening' && question.audioUrl && (
+                <div className="mb-8">
+                  <p className="text-xs text-slate-400 mb-3 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                    🎧 Ouve o áudio com atenção.
+                  </p>
+                  <ListeningPlayer key={question.id} audioUrl={question.audioUrl} />
+                </div>
+              )}
 
               {isHintActive && (
                 <div className="mb-6 p-3 md:p-4 bg-sky-900/30 border border-sky-500/30 rounded-xl text-sky-200 text-sm">💡 {question.hint}</div>

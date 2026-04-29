@@ -119,49 +119,81 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
   const selectedAttempts = selectedDate ? attemptsByDate[selectedDate] || [] : [];
 
   return (
-    <div className="bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col gap-8">
-      <div>
+    <div className="bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col lg:flex-row gap-8">
+      {/* Left Column (Heatmap) */}
+      <div className="flex-1">
         <div className="flex items-center gap-2 mb-1">
           <Calendar size={18} className="text-indigo-400" />
           <h2 className="text-xl font-bold text-slate-50 font-display">Histórico de Atividade</h2>
         </div>
         <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mb-6">Registo Biométrico de Aprendizagem</p>
 
-        <div className="flex flex-col gap-2 overflow-x-auto pb-4 custom-scrollbar">
+        {/* --- SECCÃO DO HEATMAP (GITHUB STYLE) --- */}
+        <div className="flex flex-col gap-1 overflow-x-auto pb-4 custom-scrollbar">
 
-          <div className="grid grid-flow-col grid-rows-7 gap-y-1.5 gap-x-0 min-w-max">
+          {/* Header dos Meses */}
+          <div className="grid grid-flow-col auto-cols-max gap-[3px] mb-1" style={{ gridTemplateColumns: `repeat(${totalCols}, 18px)` }}>
+            {Array.from({ length: totalCols }).map((_, colIndex) => {
+              const firstDayIdx = colIndex * 7;
+              const day = heatmapDays[firstDayIdx];
+              const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+              // Só mostra o nome do mês se for a primeira coluna ou se o mês mudou em relação à coluna anterior
+              const prevDay = colIndex > 0 ? heatmapDays[(colIndex - 1) * 7] : null;
+              const isNewMonth = !prevDay || day.month !== prevDay.month;
+
+              return (
+                <div key={colIndex} className="h-4 flex items-end">
+                  {isNewMonth && (
+                    <span className="text-[10px] text-slate-500 font-bold leading-none whitespace-nowrap">
+                      {monthNames[day.month]}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Grelha de Quadrados */}
+          <div className="grid grid-flow-col grid-rows-7 gap-[3px] auto-cols-max">
             {heatmapDays.map((day) => (
               <div
                 key={day.date}
                 onClick={() => setSelectedDate(day.date)}
-                className={`w-3.5 h-3.5 rounded-[3px] transition-all cursor-pointer relative group ${getIntensityClass(day.count)} ${selectedDate === day.date ? 'ring-2 ring-white/40 ring-offset-2 ring-offset-slate-950 scale-110 z-10' : 'hover:ring-1 hover:ring-white/20'}`}
+                className={`
+                  w-[18px] h-[18px] rounded-[2px] transition-all cursor-pointer relative group
+                  ${getIntensityClass(day.count)}
+                  ${selectedDate === day.date
+                    ? 'ring-2 ring-indigo-500 ring-offset-1 ring-offset-slate-950 z-10'
+                    : 'hover:ring-1 hover:ring-white/30'}
+                `}
               >
+                {/* Tooltip */}
                 <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-white text-[10px] rounded whitespace-nowrap z-50 pointer-events-none shadow-xl border border-white/10">
-                  {day.count} quizzes em {new Date(day.date).toLocaleDateString('pt-PT')}
+                  <span className="font-bold">{day.count} quizzes</span> em {new Date(day.date).toLocaleDateString('pt-PT')}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex justify-end items-center mt-4 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-            <div className="flex items-center gap-2">
-              <span>Menos</span>
-              <div className="flex gap-1">
-                <div className="w-3 h-3 rounded-[2px] bg-slate-800/30"></div>
-                <div className="w-3 h-3 rounded-[2px] bg-indigo-900/40"></div>
-                <div className="w-3 h-3 rounded-[2px] bg-indigo-700/60"></div>
-                <div className="w-3 h-3 rounded-[2px] bg-indigo-500"></div>
-              </div>
-              <span>Mais</span>
+          {/* Legenda (Opcional, ajustada para a densidade) */}
+          <div className="flex justify-end items-center mt-3 text-[9px] text-slate-500 font-bold uppercase tracking-wider gap-2">
+            <span>Menos</span>
+            <div className="flex gap-[3px]">
+              <div className="w-[10px] h-[10px] rounded-[1px] bg-slate-800/30"></div>
+              <div className="w-[10px] h-[10px] rounded-[1px] bg-indigo-900/40"></div>
+              <div className="w-[10px] h-[10px] rounded-[1px] bg-indigo-700/60"></div>
+              <div className="w-[10px] h-[10px] rounded-[1px] bg-indigo-500"></div>
             </div>
+            <span>Mais</span>
           </div>
         </div>
       </div>
 
-      {/* Daily Breakdown */}
-      <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Right Column (Daily Breakdown) */}
+      <div className="lg:w-[400px] flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
-          <h3 className="font-bold text-slate-200 flex items-center gap-2">
+          <h3 className="font-bold text-slate-200 flex items-center gap-2 text-sm">
             Atividade em {selectedDate ? new Date(selectedDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) : 'Selecionar dia'}
           </h3>
           <span className="text-[10px] font-black bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full uppercase">
@@ -169,7 +201,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
           </span>
         </div>
 
-        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
           {selectedAttempts.length > 0 ? (
             selectedAttempts.map((attempt, idx) => {
               const area = attempt.selectedArea;
@@ -233,13 +265,13 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
       {selectedAttempt && mounted && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300" 
+          <div
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300"
             onClick={() => setSelectedAttempt(null)}
           />
-          
+
           {/* Modal Container */}
-          <div 
+          <div
             className="relative bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
@@ -260,8 +292,8 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">{formatDate(new Date(selectedAttempt.startTime))} • {formatTime(new Date(selectedAttempt.startTime))}</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setSelectedAttempt(null)} 
+              <button
+                onClick={() => setSelectedAttempt(null)}
                 className="p-2 rounded-full text-slate-500 hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
                 title="Fechar (Esc)"
               >

@@ -150,7 +150,7 @@ export default async function StudentDashboard() {
           <div className="bg-slate-900/50 p-6 rounded-3xl border border-white/5 backdrop-blur-sm">
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-slate-50">Progresso por Tópico</h2>
+                <h2 className="text-xl font-bold text-slate-50">Progresso por Componente</h2>
                 <div className="group relative">
                   <Info size={14} className="text-slate-500 cursor-help" />
                   <div className="absolute bottom-full left-0 mb-2 w-64 p-3 bg-slate-800 text-[10px] leading-relaxed text-slate-300 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 border border-white/5 shadow-2xl backdrop-blur-md">
