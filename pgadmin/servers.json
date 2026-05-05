@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "English Quiz DB",
+      "Group": "Development",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "affective-learning",
+      "Username": "user",
+      "Password": "password",
+      "SavePassword": true,
+      "SSLMode": "prefer"
+    }
+  }
+}

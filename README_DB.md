@@ -1,49 +1,71 @@
-# Guia de Configuração da Base de Dados (PostgreSQL + Prisma)
+# Database & Infrastructure Documentation
 
-Este guia explica como configurar e gerir a base de dados de desenvolvimento local para o projeto "Affective Learning Engine".
+This document outlines the data architecture, automation workflows, and administrative tools used in the Affective Learning Engine.
 
-## Pré-requisitos
+## 🏗 Database Architecture
 
-- **Docker:** É necessário ter o Docker e o Docker Compose instalados e em execução na sua máquina.
+The project uses a containerized **PostgreSQL** database managed via Docker Compose. 
 
-## Passo a Passo
+### Infrastructure Components
+- **postgres**: The core database engine (PostgreSQL 15).
+- **pgadmin**: A management interface pre-configured with automatic server discovery.
+- **tmpfs**: Used for pgAdmin storage to ensure a clean, zero-config state on every restart.
 
-Siga estes passos para ter o ambiente de desenvolvimento a funcionar:
+## 🔍 Accessing the Data
 
-### 1. Verificar se o Docker está em Execução
+| Feature | Prisma Studio | pgAdmin 4 |
+| :--- | :--- | :--- |
+| **Primary Use** | Rapid data browsing / Quick edits | DB Administration / SQL Analysis |
+| **Access** | `npx prisma studio` | [http://localhost:5050](http://localhost:5050) |
+| **Interface** | Modern, Web-like Spreadsheet | Professional DB Management Tool |
+| **Web Login** | None (Local only) | Email: `admin@admin.com` / Pass: `admin` |
+| **Type Safety** | High (mapped to TS types) | Standard SQL |
 
-Antes de começar, garanta que a aplicação Docker Desktop (ou o Docker daemon) está aberta e a correr no seu sistema.
+### 🔑 Connection Credentials
 
-### 2. Iniciar a Base de Dados
+To connect to the PostgreSQL server (either via pgAdmin or external tools), use:
 
-Com o Docker ativo, abra um terminal na raiz do projeto e execute o seguinte comando para iniciar o contentor PostgreSQL em segundo plano (`-d` para *detached mode*):
+> **Database Connection**
+> - **Host**: `postgres` (internal Docker) or `localhost` (external)
+> - **Port**: `5432`
+> - **Username**: `user`
+> - **Password**: `password`
 
-```bash
-docker compose up -d
-```
+**Pro-Tip:** These credentials match the local Docker environment and are pre-configured in `pgadmin/servers.json` for automatic discovery.
 
-Após a execução, um contentor com a base de dados PostgreSQL estará a correr na sua máquina, acessível na porta `5432`.
+### pgAdmin Auto-Discovery
+The `pgadmin` container is configured to automatically detect and connect to the `postgres` service using the `pgadmin/servers.json` configuration file. Credentials are pre-injected for a seamless developer experience.
 
-### 3. Aplicar o Schema à Base de Dados
+## 🤖 Automation Commands
 
-O Prisma precisa de sincronizar o schema (`schema.prisma`) com a base de dados, criando as tabelas `User` e `Session`. Para fazer isso, execute:
+The following commands are available via `npm run`:
 
-```bash
-npx prisma db push
-```
+- `db:clean-audio`: Deletes the `public/audio/questions` directory to remove stale assets.
+- `db:reset`: Wipes the database and reapplies the Prisma schema. **Warning: Irreversible data loss.**
+- `db:seed`: populates the database with questions and generates unique slugs.
+- `seed:admin`: Creates or updates the primary `admin` user with expert biometric baselines.
+- `audio:generate`: Evaluates all Listening questions and generates missing MP3 files using Microsoft Edge TTS.
+- **`setup`**: The master command that runs all the above in the correct order.
 
-Este comando vai ler o `schema.prisma`, conectarse à base de dados (usando a URL no ficheiro `.env`) e criar a estrutura de tabelas necessária.
+## 🧠 Biometric Data Structure
 
-### 4. Visualizar os Dados (Opcional)
+The `User` model includes specific fields to store affective baselines:
 
-Para inspecionar, adicionar ou modificar dados diretamente na base de dados através de uma interface gráfica, pode usar o Prisma Studio. Para o iniciar, execute:
+- `frownBase`: The neutral threshold for brow contraction.
+- `frownMax`: The maximum intensity recorded for negative/concentrated states.
+- `smileMax`: The maximum intensity recorded for positive/engaged states.
+- `onboardingCompleted`: Boolean flag indicating if the calibration phase is finished.
 
-```bash
-npx prisma studio
-```
+## 🛠 Troubleshooting
 
-Isto irá abrir uma nova aba no seu browser (`localhost:5555`) onde poderá ver e gerir os dados das suas tabelas. É uma excelente ferramenta para debugging.
+### Docker Connection Issues
+If pgAdmin cannot connect to the database:
+1. Ensure both containers are running: `docker ps`.
+2. Check logs for errors: `docker logs pgadmin_container`.
+3. If the "English Quiz DB" server is missing, run `docker compose up -d --force-recreate` to refresh the `tmpfs` storage.
+4. **Password Mismatch:** If pgAdmin asks for a password and it's not being accepted, verify that the `POSTGRES_PASSWORD` in the `docker-compose.yml` matches `password`.
 
----
-
-Com estes passos, a sua base de dados está pronta e sincronizada com o projeto.
+### Prisma Sync
+If the database schema seems out of sync with the code:
+1. Run `npx prisma generate` to refresh the client.
+2. Run `npm run db:reset` to re-align the physical database with the `schema.prisma` definition.

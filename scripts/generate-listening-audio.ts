@@ -6,6 +6,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts';
 import fs from 'fs';
 import path from 'path';
+import { log } from './logger';
 
 const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
@@ -13,43 +14,53 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function generateAudio() {
-  console.log('Fetching Listening questions without audio...');
+  log.start('Audio generation process initiated');
   
   const questions = await prisma.question.findMany({
     where: {
       area: 'Listening',
-      audioUrl: null,
     },
   });
 
-  console.log(`Found ${questions.length} questions to process.`);
-
-  if (questions.length === 0) {
-    console.log('No new questions to process. Exiting.');
-    await prisma.$disconnect();
-    return;
-  }
+  log.info(`Found ${questions.length} Listening questions to evaluate`);
 
   const outputDir = path.join(process.cwd(), 'public', 'audio', 'questions');
   if (!fs.existsSync(outputDir)) {
-    console.log(`Creating output directory: ${outputDir}`);
+    log.info(`Creating directory: ${outputDir}`);
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
   for (const q of questions) {
-    const audioText = q.audioText;
+    const { audioText, slug, id, audioUrl: currentAudioUrl } = q;
     
     if (!audioText) {
-      console.warn(`SKIPPING Question ID: ${q.id} - No audioText provided.`);
+      log.error(`Question ${id}: Missing audioText field`);
       continue;
     }
 
-    const finalFileName = `${q.id}.mp3`;
+    if (!slug) {
+      log.error(`Question ${id}: Missing unique slug`);
+      continue;
+    }
+
+    const finalFileName = `${slug}.mp3`;
     const finalFilePath = path.join(outputDir, finalFileName);
     const audioUrl = `/audio/questions/${finalFileName}`;
 
-    console.log(`--- Processing Question ID: ${q.id} ---`);
-    console.log(`Text for TTS: "${audioText}"`);
+    if (fs.existsSync(finalFilePath)) {
+      if (currentAudioUrl !== audioUrl) {
+        await prisma.question.update({
+          where: { id },
+          data: { audioUrl },
+        });
+        log.success(`Linked existing audio: ${finalFileName}`);
+      } else {
+        log.skip(`File exists: ${finalFileName}`);
+      }
+      continue;
+    }
+
+    log.info(`Generating audio: ${finalFileName}`);
     
     let success = false;
     let attempts = 0;
@@ -57,7 +68,6 @@ async function generateAudio() {
 
     while (attempts < maxAttempts && !success) {
       attempts++;
-      // Create a fresh instance for each attempt to avoid state issues
       const tts = new MsEdgeTTS({ enableLogger: false });
       
       try {
@@ -73,36 +83,35 @@ async function generateAudio() {
           }
 
           await prisma.question.update({
-            where: { id: q.id },
+            where: { id },
             data: { audioUrl },
           });
           
-          console.log(`SUCCESS (Attempt ${attempts}): Generated ${audioUrl}`);
+          log.success(`Generated audio: ${finalFileName}`);
           success = true;
         } else {
-          throw new Error("File was not generated correctly.");
+          throw new Error("TTS file generation failed");
         }
       } catch (error: any) {
-        console.error(`Attempt ${attempts} failed for ${q.id}:`, error?.message || error);
-        if (attempts >= maxAttempts) {
-          console.error("Network Error: Could not connect to Microsoft Edge TTS. Check your internet connection or firewall.");
-        } else {
+        log.error(`Attempt ${attempts} failed for ${slug}: ${error?.message || 'Unknown error'}`);
+        if (attempts < maxAttempts) {
           await new Promise(resolve => setTimeout(resolve, 1500));
         }
       } finally {
         try { tts.close(); } catch (e) {}
       }
     }
-
+    
+    // Throttle to respect API limits
     await new Promise(resolve => setTimeout(resolve, 800));
   }
 
-  console.log('Finished processing all questions.');
+  log.done('Audio generation task completed');
   await prisma.$disconnect();
 }
 
 generateAudio().catch(async (e) => {
-  console.error(e);
+  log.error(`Fatal error: ${e.message}`);
   await prisma.$disconnect();
   process.exit(1);
 });

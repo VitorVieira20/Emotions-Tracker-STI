@@ -39,6 +39,7 @@ model UserSkillLevel {
 
 model Question {
   id            String   @id @default(cuid())
+  slug          String?  @unique
   text          String
   options       String[]
   correctOption Int
