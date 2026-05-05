@@ -277,6 +277,7 @@ export const a2Questions = [
 
   // A2 - Listening (10 questions)
   {
+    slug: "listening-a2-01",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Easy",
@@ -286,6 +287,7 @@ export const a2Questions = [
     hint: "'Delayed' means it will arrive later than planned.",
   },
   {
+    slug: "listening-a2-02",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Medium",
@@ -295,6 +297,7 @@ export const a2Questions = [
     hint: "Listen carefully to the numbers for the hour and minutes.",
   },
   {
+    slug: "listening-a2-03",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Medium",
@@ -304,6 +307,7 @@ export const a2Questions = [
     hint: "The instructions give two steps. Focus on the second one.",
   },
   {
+    slug: "listening-a2-04",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Hard",
@@ -313,6 +317,7 @@ export const a2Questions = [
     hint: "The phrase 'used to' talks about the past. 'Now' talks about the present.",
   },
   {
+    slug: "listening-a2-05",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Hard",
@@ -322,6 +327,7 @@ export const a2Questions = [
     hint: "The verb 'prefer' means to like one thing more than another.",
   },
   {
+    slug: "listening-a2-06",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Easy",
@@ -331,6 +337,7 @@ export const a2Questions = [
     hint: "The word 'forecast' is often used with weather.",
   },
   {
+    slug: "listening-a2-07",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Medium",
@@ -340,6 +347,7 @@ export const a2Questions = [
     hint: "The speaker lists two activities they enjoy.",
   },
   {
+    slug: "listening-a2-08",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Hard",
@@ -349,6 +357,7 @@ export const a2Questions = [
     hint: "'Pounds' are the main currency unit, and 'fifty' refers to the pence.",
   },
   {
+    slug: "listening-a2-09",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Easy",
@@ -358,6 +367,7 @@ export const a2Questions = [
     hint: "The speaker clearly states the month.",
   },
   {
+    slug: "listening-a2-10",
     cefrLevel: "A2",
     area: "Listening",
     difficulty: "Medium",

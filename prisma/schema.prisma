@@ -15,6 +15,7 @@ model User {
   passwordHash          String
   createdAt             DateTime  @default(now())
   quizAttempts          QuizAttempt[]
+  skillLevels           UserSkillLevel[]
   name                  String?
   englishLevel          String?
   strongAreas           String[]
@@ -25,8 +26,20 @@ model User {
   smileMax              Float?
 }
 
+model UserSkillLevel {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  area      String
+  level     String
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, area])
+}
+
 model Question {
   id            String   @id @default(cuid())
+  slug          String?  @unique
   text          String
   options       String[]
   correctOption Int
@@ -34,6 +47,8 @@ model Question {
   area          String
   difficulty    String
   hint          String
+  audioUrl      String?
+  audioText     String?
   createdAt     DateTime @default(now())
 
   responses QuestionResponse[]
@@ -52,6 +67,8 @@ model QuizAttempt {
   avgFrustration  Float              @default(0)
   totalHintsUsed  Int                @default(0)
   
+  selectedArea    String?
+
   responses       QuestionResponse[]
 }
 

@@ -9,5 +9,6 @@ export type QuizAttempt = {
     totalHintsUsed: number,
     totalQuestions: number,
     userId: string,
+    selectedArea: string | null,
     responses: QuestionResponse[]
 }

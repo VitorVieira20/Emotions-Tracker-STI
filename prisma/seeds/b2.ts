@@ -277,6 +277,7 @@ export const b2Questions = [
 
   // B2 - Listening (10 questions)
   {
+    slug: "listening-b2-01",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Easy",
@@ -286,6 +287,7 @@ export const b2Questions = [
     hint: "The speaker gives a specific reason for the manager's unavailability.",
   },
   {
+    slug: "listening-b2-02",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Medium",
@@ -295,6 +297,7 @@ export const b2Questions = [
     hint: "'To have second thoughts' means to reconsider a decision you have made.",
   },
   {
+    slug: "listening-b2-03",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Medium",
@@ -304,6 +307,7 @@ export const b2Questions = [
     hint: "This inverted third conditional expresses a past regret. It implies the speaker's journey was negatively affected because they didn't have certain information.",
   },
   {
+    slug: "listening-b2-04",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Hard",
@@ -313,6 +317,7 @@ export const b2Questions = [
     hint: "'To live up to the hype' means to be as good as people expected. The speaker says it 'didn't quite' do that.",
   },
   {
+    slug: "listening-b2-05",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Hard",
@@ -322,6 +327,7 @@ export const b2Questions = [
     hint: "'To get the impression' means to form an idea or opinion without being told directly. It suggests reading between the lines.",
   },
   {
+    slug: "listening-b2-06",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Easy",
@@ -331,6 +337,7 @@ export const b2Questions = [
     hint: "'Out of stock' means there are none left to sell.",
   },
   {
+    slug: "listening-b2-07",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Medium",
@@ -340,6 +347,7 @@ export const b2Questions = [
     hint: "The idiom 'snowed under with work' means to have a very large amount of work to do.",
   },
   {
+    slug: "listening-b2-08",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Hard",
@@ -349,6 +357,7 @@ export const b2Questions = [
     hint: "This idiom refers to someone who surprisingly wins or succeeds, or who has a secret ability.",
   },
   {
+    slug: "listening-b2-09",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Medium",
@@ -358,6 +367,7 @@ export const b2Questions = [
     hint: "The phrase 'all things considered' means 'taking everything into account' and is used to give a final summary or judgement.",
   },
   {
+    slug: "listening-b2-10",
     cefrLevel: "B2",
     area: "Listening",
     difficulty: "Easy",

@@ -8,5 +8,6 @@ export type Question = {
     difficulty: Difficulty,
     hint: string,
     options: string[],
-    text: string
+    text: string,
+    audioUrl?: string | null
 }

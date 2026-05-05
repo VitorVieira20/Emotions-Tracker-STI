@@ -277,6 +277,7 @@ export const a1Questions = [
 
   // A1 - Listening (10 questions)
   {
+    slug: "listening-a1-01",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Easy",
@@ -286,6 +287,7 @@ export const a1Questions = [
     hint: "This is a common way to start a conversation.",
   },
   {
+    slug: "listening-a1-02",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Easy",
@@ -295,6 +297,7 @@ export const a1Questions = [
     hint: "The speaker names a specific color.",
   },
   {
+    slug: "listening-a1-03",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Medium",
@@ -304,6 +307,7 @@ export const a1Questions = [
     hint: "The person is ordering a drink.",
   },
   {
+    slug: "listening-a1-04",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Medium",
@@ -313,6 +317,7 @@ export const a1Questions = [
     hint: "This weather is associated with the sun.",
   },
   {
+    slug: "listening-a1-05",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Hard",
@@ -322,6 +327,7 @@ export const a1Questions = [
     hint: "'Thirty' often means 30 minutes past the hour.",
   },
   {
+    slug: "listening-a1-06",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Hard",
@@ -331,6 +337,7 @@ export const a1Questions = [
     hint: "Listen for the number before the word 'sister'.",
   },
   {
+    slug: "listening-a1-07",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Easy",
@@ -340,6 +347,7 @@ export const a1Questions = [
     hint: "This is the number between four and six.",
   },
   {
+    slug: "listening-a1-08",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Medium",
@@ -349,6 +357,7 @@ export const a1Questions = [
     hint: "The speaker names a country in North America.",
   },
   {
+    slug: "listening-a1-09",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Hard",
@@ -358,6 +367,7 @@ export const a1Questions = [
     hint: "The person is asking for directions to a place with trains.",
   },
   {
+    slug: "listening-a1-10",
     cefrLevel: "A1",
     area: "Listening",
     difficulty: "Medium",

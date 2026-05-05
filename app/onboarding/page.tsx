@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { completeOnboarding } from '../actions/onboarding';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import { Info } from 'lucide-react';
 
 const STEPS = [
   { id: 1, title: 'Seu Perfil' },
@@ -13,6 +14,15 @@ const STEPS = [
 ];
 
 const SKILLS = ['Reading', 'Listening', 'Grammar', 'Vocabulary', 'Speaking', 'Writing'];
+
+const CEFR_LEVELS = [
+  { id: 'A1', label: 'A1 (Iniciante)', description: 'Consegue compreender e utilizar expressões familiares do dia-a-dia e frases básicas para satisfazer necessidades concretas.' },
+  { id: 'A2', label: 'A2 (Básico)', description: 'Consegue compreender frases isoladas e expressões frequentes relacionadas com áreas de prioridade imediata.' },
+  { id: 'B1', label: 'B1 (Intermédio)', description: 'Consegue lidar com a maioria das situações que podem surgir durante uma viagem em locais onde a língua é falada.' },
+  { id: 'B2', label: 'B2 (Utilizador Independente)', description: 'Consegue comunicar com um grau de fluência e espontaneidade que torna possível a interação regular com falantes nativos.' },
+  { id: 'C1', label: 'C1 (Avançado)', description: 'Consegue expressar-se de forma fluente e espontânea sem precisar de procurar muito as palavras.' },
+  { id: 'C2', label: 'C2 (Proficiente)', description: 'Consegue compreender sem esforço praticamente tudo o que lê ou ouve e expressar-se com extrema precisão.' },
+];
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -201,8 +211,6 @@ export default function OnboardingPage() {
     formData.append('frownMax', String(frownMax ?? 0));
     formData.append('smileMax', String(smileMax ?? 0));
 
-    console.log(formData)
-
     try {
       const result = await completeOnboarding(formData);
 
@@ -235,14 +243,33 @@ export default function OnboardingPage() {
             <h2 className="text-xl font-bold text-slate-100 mb-6">Seu nível de conhecimento</h2>
             <div className='space-y-6'>
                 <div>
-                    <label htmlFor="english-level" className="text-sm font-medium text-slate-400">Qual o seu nível de inglês (aproximado)?</label>
-                    <select id="english-level" value={englishLevel} onChange={(e) => setEnglishLevel(e.target.value)} className="w-full px-3 py-2 mt-1 text-slate-50 bg-slate-800 border border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-                        <option value="">Selecione um nível</option>
-                        <option value="A2">A2 (Básico)</option>
-                        <option value="B1">B1 (Intermediário)</option>
-                        <option value="B2">B2 (Intermediário-Avançado)</option>
-                        <option value="C1">C1 (Avançado)</option>
-                    </select>
+                    <label className="text-sm font-medium text-slate-400">Qual o seu nível de inglês (aproximado)?</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                        {CEFR_LEVELS.map((level) => (
+                            <div
+                                key={level.id}
+                                onClick={() => setEnglishLevel(level.id)}
+                                className={`relative group p-3 border rounded-xl cursor-pointer transition-all duration-200 ${
+                                    englishLevel === level.id
+                                        ? 'bg-indigo-600 border-indigo-400 text-white shadow-[0_0_15px_rgba(79,70,229,0.3)]'
+                                        : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-750'
+                                }`}
+                            >
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className="font-bold text-sm">{level.id}</span>
+                                    <Info className="w-4 h-4 text-slate-400 group-hover:text-slate-200 transition-colors" />
+                                </div>
+                                <p className="text-xs opacity-70">
+                                    {level.label.split(' (')[1].replace(')', '')}
+                                </p>
+
+                                <div className="invisible group-hover:visible absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 p-3 bg-slate-800 text-slate-100 text-[14px] leading-snug rounded-lg shadow-2xl border border-slate-600 pointer-events-none transition-all duration-200 opacity-0 group-hover:opacity-100 transform group-hover:translate-y-0 translate-y-2">
+                                    {level.description}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-800"></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <div>
                     <h3 className="text-sm font-medium text-slate-400 mb-2">Quais são as suas áreas mais fortes?</h3>

@@ -277,6 +277,7 @@ export const c2Questions = [
 
   // C2 - Listening (10 questions)
   {
+    slug: "listening-c2-01",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Easy",
@@ -286,6 +287,7 @@ export const c2Questions = [
     hint: "'To get bogged down' means to be prevented from making progress. 'Minutiae' refers to the small, precise details of something.",
   },
   {
+    slug: "listening-c2-02",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Medium",
@@ -295,6 +297,7 @@ export const c2Questions = [
     hint: "To 'play devil's advocate' is to express an opinion that one does not necessarily agree with, in order to make a discussion more interesting.",
   },
   {
+    slug: "listening-c2-03",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Medium",
@@ -304,6 +307,7 @@ export const c2Questions = [
     hint: "'To be given the green light' is an idiom meaning to be given permission to start something.",
   },
   {
+    slug: "listening-c2-04",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Hard",
@@ -313,6 +317,7 @@ export const c2Questions = [
     hint: "A 'thinly veiled' comment is one that is presented in an indirect way, but whose true meaning is still obvious.",
   },
   {
+    slug: "listening-c2-05",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Hard",
@@ -322,6 +327,7 @@ export const c2Questions = [
     hint: "A 'Hobson's choice' is a free choice in which only one thing is offered. The phrase implies a 'take it or leave it' scenario.",
   },
   {
+    slug: "listening-c2-06",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Easy",
@@ -331,6 +337,7 @@ export const c2Questions = [
     hint: "'Hindsight' is the understanding of a situation or event only after it has happened or developed.",
   },
   {
+    slug: "listening-c2-07",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Medium",
@@ -340,6 +347,7 @@ export const c2Questions = [
     hint: "This idiom refers to a major problem or controversial issue that is present but ignored by everyone.",
   },
   {
+    slug: "listening-c2-08",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Hard",
@@ -349,6 +357,7 @@ export const c2Questions = [
     hint: "'Poly-' means 'many' and 'math' relates to learning. The examples given (languages, physics) demonstrate a wide range of knowledge.",
   },
   {
+    slug: "listening-c2-09",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Medium",
@@ -358,6 +367,7 @@ export const c2Questions = [
     hint: "The idiom 'out of the blue' means completely unexpected.",
   },
   {
+    slug: "listening-c2-10",
     cefrLevel: "C2",
     area: "Listening",
     difficulty: "Easy",

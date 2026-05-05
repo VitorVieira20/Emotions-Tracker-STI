@@ -277,6 +277,7 @@ export const c1Questions = [
 
   // C1 - Listening (10 questions)
   {
+    slug: "listening-c1-01",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Easy",
@@ -286,6 +287,7 @@ export const c1Questions = [
     hint: "'To postpone' means to arrange for something to take place at a time later than that first scheduled.",
   },
   {
+    slug: "listening-c1-02",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Medium",
@@ -295,6 +297,7 @@ export const c1Questions = [
     hint: "The idiom 'to beat around the bush' means to avoid talking about what is important.",
   },
   {
+    slug: "listening-c1-03",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Medium",
@@ -304,6 +307,7 @@ export const c1Questions = [
     hint: "The idiom 'to be in two minds' means to be unable to decide between two options.",
   },
   {
+    slug: "listening-c1-04",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Hard",
@@ -313,6 +317,7 @@ export const c1Questions = [
     hint: "'Ambiguous' means unclear or having more than one possible meaning. 'To read between the lines' means to look for a hidden meaning.",
   },
   {
+    slug: "listening-c1-05",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Hard",
@@ -322,6 +327,7 @@ export const c1Questions = [
     hint: "An 'Achilles' heel' is a metaphor for a weakness or vulnerable point in an otherwise strong person.",
   },
   {
+    slug: "listening-c1-06",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Easy",
@@ -331,6 +337,7 @@ export const c1Questions = [
     hint: "In this context, 'to table' something means to postpone its consideration.",
   },
   {
+    slug: "listening-c1-07",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Medium",
@@ -340,6 +347,7 @@ export const c1Questions = [
     hint: "The idiom 'to take one's hat off to someone' is an expression of respect or admiration for an achievement.",
   },
   {
+    slug: "listening-c1-08",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Hard",
@@ -349,6 +357,7 @@ export const c1Questions = [
     hint: "'Perfunctory' means carried out with a minimum of effort or reflection. 'Going through the motions' is an idiom with a similar meaning.",
   },
   {
+    slug: "listening-c1-09",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Medium",
@@ -358,6 +367,7 @@ export const c1Questions = [
     hint: "'On the face of it' means 'superficially' or 'from appearances alone'. 'Reservations' means doubts.",
   },
   {
+    slug: "listening-c1-10",
     cefrLevel: "C1",
     area: "Listening",
     difficulty: "Easy",

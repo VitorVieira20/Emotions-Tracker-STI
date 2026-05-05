@@ -277,6 +277,7 @@ export const b1Questions = [
 
   // B1 - Listening (10 questions)
   {
+    slug: "listening-b1-01",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Easy",
@@ -286,6 +287,7 @@ export const b1Questions = [
     hint: "The announcement specifies the gate number for boarding.",
   },
   {
+    slug: "listening-b1-02",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Medium",
@@ -295,6 +297,7 @@ export const b1Questions = [
     hint: "'Fully booked' means there are no available times. What is the first alternative offered?",
   },
   {
+    slug: "listening-b1-03",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Medium",
@@ -304,6 +307,7 @@ export const b1Questions = [
     hint: "The phrase 'used to' refers to a past habit that is no longer true.",
   },
   {
+    slug: "listening-b1-04",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Hard",
@@ -313,6 +317,7 @@ export const b1Questions = [
     hint: "This is a third conditional sentence expressing a past regret. The person is imagining a different past action.",
   },
   {
+    slug: "listening-b1-05",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Hard",
@@ -322,6 +327,7 @@ export const b1Questions = [
     hint: "'Not keen on' means he doesn't really like it. 'As long as' introduces a condition that would make it acceptable.",
   },
   {
+    slug: "listening-b1-06",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Easy",
@@ -331,6 +337,7 @@ export const b1Questions = [
     hint: "'Surname' is another word for last name or family name. 'To spell' means to say the letters.",
   },
   {
+    slug: "listening-b1-07",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Medium",
@@ -340,6 +347,7 @@ export const b1Questions = [
     hint: "The forecast mentions two different types of weather at different times of the day.",
   },
   {
+    slug: "listening-b1-08",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Hard",
@@ -349,6 +357,7 @@ export const b1Questions = [
     hint: "Words like 'fantastic' and 'recommend' show a very positive opinion.",
   },
   {
+    slug: "listening-b1-09",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Easy",
@@ -358,6 +367,7 @@ export const b1Questions = [
     hint: "'Cash or card' refers to the method of payment.",
   },
   {
+    slug: "listening-b1-10",
     cefrLevel: "B1",
     area: "Listening",
     difficulty: "Medium",
