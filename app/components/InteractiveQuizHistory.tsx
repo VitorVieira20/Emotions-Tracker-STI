@@ -5,13 +5,13 @@ import { createPortal } from 'react-dom';
 import { QuizAttempt } from '@/types/QuizAttempt';
 import {
   CheckCircle2, XCircle, Lightbulb, Clock, ChevronsRight,
-  Brain, Calendar, Info, X
+  Brain, Calendar, Info, X, Filter
 } from 'lucide-react';
 import {
-  Ear, BookOpen, PenTool, MessageSquare, Type, FileText
+  Ear, BookOpen, PenTool, MessageSquare, Type, FileText, LucideIcon
 } from 'lucide-react';
 
-const AREA_CONFIG: Record<string, { color: string, icon: any, label: string }> = {
+const AREA_CONFIG: Record<string, { color: string, icon: LucideIcon, label: string }> = {
   'Listening': { color: '#8B5CF6', icon: Ear, label: 'Listening' },
   'Reading': { color: '#EF4444', icon: BookOpen, label: 'Reading' },
   'Writing': { color: '#3B82F6', icon: PenTool, label: 'Writing' },
@@ -21,20 +21,33 @@ const AREA_CONFIG: Record<string, { color: string, icon: any, label: string }> =
 };
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
 export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAttempt[] }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
   const [selectedAttempt, setSelectedAttempt] = useState<QuizAttempt | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
+
+    const params = new URLSearchParams(window.location.search);
+    const filter = params.get('filter');
+    if (filter) setActiveFilter(filter);
+
+    const handleFilterChange = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setActiveFilter(customEvent.detail);
+    };
+
+    window.addEventListener('filterChanged', handleFilterChange);
+    return () => window.removeEventListener('filterChanged', handleFilterChange);
   }, []);
 
   useEffect(() => {
@@ -51,15 +64,20 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
     }
   }, [selectedAttempt]);
 
+  const filteredAttempts = useMemo(() => {
+    if (!activeFilter) return attempts;
+    return attempts.filter(a => a.selectedArea === activeFilter);
+  }, [attempts, activeFilter]);
+
   const attemptsByDate = useMemo(() => {
     const groups: Record<string, QuizAttempt[]> = {};
-    attempts.forEach(a => {
+    filteredAttempts.forEach(a => {
       const dateKey = new Date(a.startTime).toISOString().split('T')[0];
       if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(a);
     });
     return groups;
-  }, [attempts]);
+  }, [filteredAttempts]);
 
   const heatmapDays = useMemo(() => {
     const days = [];
@@ -89,26 +107,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
   const totalCols = Math.ceil(heatmapDays.length / 7);
 
-  const monthLabels = useMemo(() => {
-    const labels: { name: string; colIndex: number }[] = [];
-    const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-    for (let colIndex = 0; colIndex < totalCols; colIndex++) {
-      const firstDayIdx = colIndex * 7;
-      const currentMonth = heatmapDays[firstDayIdx].month;
-
-      if (colIndex === 0) {
-        labels.push({ name: monthNames[currentMonth], colIndex });
-      } else {
-        const prevMonth = heatmapDays[firstDayIdx - 7].month;
-        if (currentMonth !== prevMonth) {
-          labels.push({ name: monthNames[currentMonth], colIndex });
-        }
-      }
-    }
-    return labels;
-  }, [heatmapDays, totalCols]);
-
   const getIntensityClass = (count: number) => {
     if (count === 0) return 'bg-slate-800/30';
     if (count <= 2) return 'bg-indigo-900/40';
@@ -118,27 +116,43 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
   const selectedAttempts = selectedDate ? attemptsByDate[selectedDate] || [] : [];
 
+  const clearFilter = () => {
+    setActiveFilter(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('filter');
+    window.history.pushState({}, '', url);
+  };
+
   return (
-    <div className="bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col lg:flex-row gap-8">
+    <div id="activity-history" className="bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col lg:flex-row gap-8">
       {/* Left Column (Heatmap) */}
       <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Calendar size={18} className="text-indigo-400" />
-          <h2 className="text-xl font-bold text-slate-50 font-display">Histórico de Atividade</h2>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <Calendar size={18} className="text-indigo-400" />
+            <h2 className="text-xl font-bold text-slate-50 font-display">Histórico de Atividade</h2>
+          </div>
+          {activeFilter && (
+            <button
+              onClick={clearFilter}
+              className="flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-wider hover:bg-indigo-500/20 transition-all cursor-pointer"
+            >
+              <Filter size={10} />
+              {activeFilter}
+              <X size={10} className="ml-1" />
+            </button>
+          )}
         </div>
-        <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mb-6">Registo Biométrico de Aprendizagem</p>
+        <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mb-6">Registo de Aprendizagem</p>
 
-        {/* --- SECCÃO DO HEATMAP (GITHUB STYLE) --- */}
         <div className="flex flex-col gap-1 overflow-x-auto pb-4 custom-scrollbar">
 
-          {/* Header dos Meses */}
           <div className="grid grid-flow-col auto-cols-max gap-[3px] mb-1" style={{ gridTemplateColumns: `repeat(${totalCols}, 18px)` }}>
             {Array.from({ length: totalCols }).map((_, colIndex) => {
               const firstDayIdx = colIndex * 7;
               const day = heatmapDays[firstDayIdx];
               const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
-              // Só mostra o nome do mês se for a primeira coluna ou se o mês mudou em relação à coluna anterior
               const prevDay = colIndex > 0 ? heatmapDays[(colIndex - 1) * 7] : null;
               const isNewMonth = !prevDay || day.month !== prevDay.month;
 
@@ -154,7 +168,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
             })}
           </div>
 
-          {/* Grelha de Quadrados */}
           <div className="grid grid-flow-col grid-rows-7 gap-[3px] auto-cols-max">
             {heatmapDays.map((day) => (
               <div
@@ -176,7 +189,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
             ))}
           </div>
 
-          {/* Legenda (Opcional, ajustada para a densidade) */}
           <div className="flex justify-end items-center mt-3 text-[9px] text-slate-500 font-bold uppercase tracking-wider gap-2">
             <span>Menos</span>
             <div className="flex gap-[3px]">
@@ -194,7 +206,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
       <div className="lg:w-[400px] flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <h3 className="font-bold text-slate-200 flex items-center gap-2 text-sm">
-            Atividade em {selectedDate ? new Date(selectedDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) : 'Selecionar dia'}
+            Atividade em {selectedDate ? new Date(selectedDate).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long' }) : 'Selecionar dia'}
           </h3>
           <span className="text-[10px] font-black bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full uppercase">
             {selectedAttempts.length} sessões
@@ -203,7 +215,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
         <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
           {selectedAttempts.length > 0 ? (
-            selectedAttempts.map((attempt, idx) => {
+            selectedAttempts.map((attempt) => {
               const area = attempt.selectedArea;
               const config = area ? AREA_CONFIG[area] : null;
               const focusLevel = 100 - Math.round(attempt.avgFrustration);
@@ -216,37 +228,97 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
                 >
                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-slate-800 group-hover:bg-indigo-500 transition-colors"></div>
 
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-950/40 p-4 rounded-2xl border border-white/5 group-hover:border-white/10 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2.5 rounded-xl bg-slate-900 border border-white/5 shadow-inner" style={{ color: config?.color || '#6366f1' }}>
-                        {config ? <config.icon size={18} /> : <Brain size={18} />}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-slate-100">{area || 'Quiz Adaptativo'}</p>
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${area ? 'bg-slate-800 text-slate-400' : 'bg-indigo-500/20 text-indigo-400'}`}>
-                            {area ? 'Focado' : 'Adaptativo'}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{formatTime(new Date(attempt.startTime))}</p>
+                  <div className={`group relative flex flex-col bg-slate-900/40 backdrop-blur-sm p-6 rounded-3xl border border-white/[0.03] hover:border-white/10 hover:bg-slate-900/60 transition-all duration-300 overflow-hidden ${attempt.status === 'IN_PROGRESS' ? 'min-h-[200px] pb-0' : 'min-h-[180px]'}`}>
+                    <div className={`
+    absolute top-0 right-0 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] border-l border-b z-20
+    ${attempt.status === 'IN_PROGRESS'
+                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/20 rounded-bl-2xl'
+                        : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/10 rounded-bl-2xl'}
+  `}>
+                      <div className="flex items-center gap-2">
+                        {attempt.status === 'IN_PROGRESS' ? (
+                          <>
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                            </span>
+                            Em Curso
+                          </>
+                        ) : 'Concluído'}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                      <div className="flex flex-col items-end">
-                        <span className="text-[9px] text-slate-500 font-black uppercase">Estabilidade</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 transition-all" style={{ width: `${focusLevel}%` }}></div>
-                          </div>
-                          <span className="text-xs font-bold text-slate-300">{focusLevel}%</span>
+                    <div className="flex items-center gap-5">
+                      <div
+                        className="relative p-3 rounded-2xl bg-slate-950 border border-white/5 shadow-2xl shrink-0"
+                        style={{ color: config?.color || '#6366f1' }}
+                      >
+                        <div className="absolute inset-0 blur-xl opacity-20" style={{ backgroundColor: config?.color || '#6366f1' }} />
+                        <div className="relative">
+                          {config ? <config.icon size={24} /> : <Brain size={24} />}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end min-w-[60px]">
-                        <span className="text-[9px] text-slate-500 font-black uppercase">Score</span>
-                        <p className="text-sm font-black text-white">{attempt.score}<span className="text-slate-500">/{attempt.totalQuestions}</span></p>
+
+                      <div className="flex flex-col">
+                        <h4 className="text-base font-bold text-slate-100 tracking-tight leading-none">
+                          {area || 'Adaptive Quiz'}
+                        </h4>
+                        <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-2 opacity-60">
+                          {formatTime(new Date(attempt.startTime))}
+                        </span>
                       </div>
-                      <ChevronsRight size={18} className="text-slate-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+
+                    <div className="mt-auto flex flex-col gap-6">
+
+                      {attempt.status === 'IN_PROGRESS' ? (
+                        <div className="flex flex-col gap-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); window.location.href = `/quiz/${attempt.id}`; }}
+                            className="w-fit px-8 py-3 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-amber-900/20 cursor-pointer"
+                          >
+                            Continuar
+                          </button>
+
+                          {/* Barra de Progresso Encostada ao fundo */}
+                          <div className="flex flex-col gap-2 pb-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-amber-500/70 font-black uppercase tracking-[0.2em]">Progresso Ativo</span>
+                              <span className="text-[11px] font-black text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/10">
+                                {attempt.responses?.length || 0} / 10
+                              </span>
+                            </div>
+                            <div className="relative w-full h-2 bg-slate-800/40 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all duration-1000 ease-out rounded-full"
+                                style={{ width: `${(attempt.responses?.length || 0) * 10}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-end justify-between border-t border-white/5 pt-6 mt-2">
+                          <div className="flex items-center gap-8">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Estabilidade</span>
+                              <span className="text-lg font-black text-emerald-400 tabular-nums leading-none">{focusLevel}%</span>
+                            </div>
+
+                            <div className="h-8 w-px bg-white/5" /> {/* Separador Vertical */}
+
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Score</span>
+                              <p className="text-lg font-black text-white tabular-nums leading-none">
+                                {attempt.score}<span className="text-slate-600 font-medium text-xs">/10</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="p-3 rounded-2xl bg-slate-800/40 text-slate-500 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-all cursor-pointer">
+                            <ChevronsRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -261,21 +333,17 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
         </div>
       </div>
 
-      {/* Detail Modal via Portal */}
       {selectedAttempt && mounted && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300"
             onClick={() => setSelectedAttempt(null)}
           />
 
-          {/* Modal Container */}
           <div
             className="relative bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Glow */}
             <div className="absolute -left-20 -top-20 w-64 h-64 bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
 
             {/* Header */}
@@ -301,7 +369,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
               </button>
             </div>
 
-            {/* Body */}
             <div className="p-6 space-y-4 overflow-y-auto relative z-10 custom-scrollbar">
               {selectedAttempt.responses.map((response, idx) => (
                 <div key={response.id} className="p-5 rounded-2xl border border-white/5 bg-slate-950/40 backdrop-blur-sm group hover:border-white/10 transition-all">

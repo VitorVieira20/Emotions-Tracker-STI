@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback, use } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Trophy, Target, Home, Clock, Brain, Lightbulb, RefreshCcw, CheckCircle2, XCircle, Medal } from 'lucide-react';
+import { ChevronLeft, Trophy, Target, Home, Clock, Brain, Lightbulb, RefreshCcw, CheckCircle2, XCircle, Medal, Cloud } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { getUserBaseline } from '../../actions/quiz';
 import { getQuizAttemptStatus, submitAnswerAndGetNext, startAdaptiveQuiz } from '../../actions/adaptiveEngine';
@@ -32,6 +32,7 @@ export default function AffectiveQuizRoute({ params }: { params: Promise<{ attem
   const [isFetchingNext, setIsFetchingNext] = useState(false);
   const [questionNumber, setQuestionNumber] = useState(1);
   const [totalQuestions, setTotalQuestions] = useState(10);
+  const [showSavedIndicator, setShowSavedIndicator] = useState(false);
 
   const [selectedOpt, setSelectedOpt] = useState<number | null>(null);
   const [hasChecked, setHasChecked] = useState(false);
@@ -241,6 +242,10 @@ export default function AffectiveQuizRoute({ params }: { params: Promise<{ attem
       timeSpentSeconds
     );
 
+    // Show saved indicator briefly
+    setShowSavedIndicator(true);
+    setTimeout(() => setShowSavedIndicator(false), 2000);
+
     if (result.finished) {
       stopCamera();
       if (result.stats) {
@@ -290,6 +295,13 @@ export default function AffectiveQuizRoute({ params }: { params: Promise<{ attem
           Terminar e ir para o Dashboard
         </Link>
         <h1 className="text-lg md:text-xl font-bold w-full md:w-auto">Investigação: Intervenção Adaptativa</h1>
+        
+        {showSavedIndicator && (
+          <div className="fixed top-20 right-6 flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-full text-xs font-medium animate-in fade-in slide-in-from-top-4 duration-300">
+            <Cloud size={14} className="animate-pulse" />
+            <span>Progresso Guardado</span>
+          </div>
+        )}
       </header>
 
       {showHintModal && !isHintActive && !quizFinished && (

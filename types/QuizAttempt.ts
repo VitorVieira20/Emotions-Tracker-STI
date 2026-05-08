@@ -2,6 +2,7 @@ import { QuestionResponse } from "./QuestionResponse"
 
 export type QuizAttempt = {
     id: string
+    status?: 'IN_PROGRESS' | 'COMPLETED',
     avgFrustration: number,
     startTime: Date,
     endTime: Date | null,
