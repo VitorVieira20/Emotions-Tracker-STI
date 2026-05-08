@@ -5,13 +5,13 @@ import { createPortal } from 'react-dom';
 import { QuizAttempt } from '@/types/QuizAttempt';
 import {
   CheckCircle2, XCircle, Lightbulb, Clock, ChevronsRight,
-  Brain, Calendar, Info, X
+  Brain, Calendar, Info, X, Filter
 } from 'lucide-react';
 import {
-  Ear, BookOpen, PenTool, MessageSquare, Type, FileText
+  Ear, BookOpen, PenTool, MessageSquare, Type, FileText, LucideIcon
 } from 'lucide-react';
 
-const AREA_CONFIG: Record<string, { color: string, icon: any, label: string }> = {
+const AREA_CONFIG: Record<string, { color: string, icon: LucideIcon, label: string }> = {
   'Listening': { color: '#8B5CF6', icon: Ear, label: 'Listening' },
   'Reading': { color: '#EF4444', icon: BookOpen, label: 'Reading' },
   'Writing': { color: '#3B82F6', icon: PenTool, label: 'Writing' },
@@ -21,20 +21,33 @@ const AREA_CONFIG: Record<string, { color: string, icon: any, label: string }> =
 };
 
 function formatDate(date: Date): string {
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+  return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 function formatTime(date: Date): string {
-  return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
 
 export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAttempt[] }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(new Date().toISOString().split('T')[0]);
   const [selectedAttempt, setSelectedAttempt] = useState<QuizAttempt | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    
+    const params = new URLSearchParams(window.location.search);
+    const filter = params.get('filter');
+    if (filter) setActiveFilter(filter);
+
+    const handleFilterChange = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setActiveFilter(customEvent.detail);
+    };
+
+    window.addEventListener('filterChanged', handleFilterChange);
+    return () => window.removeEventListener('filterChanged', handleFilterChange);
   }, []);
 
   useEffect(() => {
@@ -51,15 +64,20 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
     }
   }, [selectedAttempt]);
 
+  const filteredAttempts = useMemo(() => {
+    if (!activeFilter) return attempts;
+    return attempts.filter(a => a.selectedArea === activeFilter);
+  }, [attempts, activeFilter]);
+
   const attemptsByDate = useMemo(() => {
     const groups: Record<string, QuizAttempt[]> = {};
-    attempts.forEach(a => {
+    filteredAttempts.forEach(a => {
       const dateKey = new Date(a.startTime).toISOString().split('T')[0];
       if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(a);
     });
     return groups;
-  }, [attempts]);
+  }, [filteredAttempts]);
 
   const heatmapDays = useMemo(() => {
     const days = [];
@@ -89,26 +107,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
   const totalCols = Math.ceil(heatmapDays.length / 7);
 
-  const monthLabels = useMemo(() => {
-    const labels: { name: string; colIndex: number }[] = [];
-    const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-
-    for (let colIndex = 0; colIndex < totalCols; colIndex++) {
-      const firstDayIdx = colIndex * 7;
-      const currentMonth = heatmapDays[firstDayIdx].month;
-
-      if (colIndex === 0) {
-        labels.push({ name: monthNames[currentMonth], colIndex });
-      } else {
-        const prevMonth = heatmapDays[firstDayIdx - 7].month;
-        if (currentMonth !== prevMonth) {
-          labels.push({ name: monthNames[currentMonth], colIndex });
-        }
-      }
-    }
-    return labels;
-  }, [heatmapDays, totalCols]);
-
   const getIntensityClass = (count: number) => {
     if (count === 0) return 'bg-slate-800/30';
     if (count <= 2) return 'bg-indigo-900/40';
@@ -118,27 +116,43 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
   const selectedAttempts = selectedDate ? attemptsByDate[selectedDate] || [] : [];
 
+  const clearFilter = () => {
+    setActiveFilter(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('filter');
+    window.history.pushState({}, '', url);
+  };
+
   return (
-    <div className="bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col lg:flex-row gap-8">
+    <div id="activity-history" className="bg-slate-900/50 backdrop-blur-md p-6 md:p-8 rounded-3xl border border-white/5 shadow-2xl overflow-hidden flex flex-col lg:flex-row gap-8">
       {/* Left Column (Heatmap) */}
       <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Calendar size={18} className="text-indigo-400" />
-          <h2 className="text-xl font-bold text-slate-50 font-display">Histórico de Atividade</h2>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <Calendar size={18} className="text-indigo-400" />
+            <h2 className="text-xl font-bold text-slate-50 font-display">Histórico de Atividade</h2>
+          </div>
+          {activeFilter && (
+            <button 
+              onClick={clearFilter}
+              className="flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-wider hover:bg-indigo-500/20 transition-all cursor-pointer"
+            >
+              <Filter size={10} />
+              {activeFilter}
+              <X size={10} className="ml-1" />
+            </button>
+          )}
         </div>
-        <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mb-6">Registo Biométrico de Aprendizagem</p>
+        <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mb-6">Registo de Aprendizagem</p>
 
-        {/* --- SECCÃO DO HEATMAP (GITHUB STYLE) --- */}
         <div className="flex flex-col gap-1 overflow-x-auto pb-4 custom-scrollbar">
 
-          {/* Header dos Meses */}
           <div className="grid grid-flow-col auto-cols-max gap-[3px] mb-1" style={{ gridTemplateColumns: `repeat(${totalCols}, 18px)` }}>
             {Array.from({ length: totalCols }).map((_, colIndex) => {
               const firstDayIdx = colIndex * 7;
               const day = heatmapDays[firstDayIdx];
-              const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+             const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
-              // Só mostra o nome do mês se for a primeira coluna ou se o mês mudou em relação à coluna anterior
               const prevDay = colIndex > 0 ? heatmapDays[(colIndex - 1) * 7] : null;
               const isNewMonth = !prevDay || day.month !== prevDay.month;
 
@@ -154,7 +168,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
             })}
           </div>
 
-          {/* Grelha de Quadrados */}
           <div className="grid grid-flow-col grid-rows-7 gap-[3px] auto-cols-max">
             {heatmapDays.map((day) => (
               <div
@@ -176,7 +189,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
             ))}
           </div>
 
-          {/* Legenda (Opcional, ajustada para a densidade) */}
           <div className="flex justify-end items-center mt-3 text-[9px] text-slate-500 font-bold uppercase tracking-wider gap-2">
             <span>Menos</span>
             <div className="flex gap-[3px]">
@@ -194,7 +206,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
       <div className="lg:w-[400px] flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 border-t lg:border-t-0 lg:border-l border-white/5 pt-8 lg:pt-0 lg:pl-8">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <h3 className="font-bold text-slate-200 flex items-center gap-2 text-sm">
-            Atividade em {selectedDate ? new Date(selectedDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }) : 'Selecionar dia'}
+            Atividade em {selectedDate ? new Date(selectedDate).toLocaleDateString('pt-PT', { day: '2-digit', month: 'long' }) : 'Selecionar dia'}
           </h3>
           <span className="text-[10px] font-black bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full uppercase">
             {selectedAttempts.length} sessões
@@ -203,7 +215,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
         <div className="space-y-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar">
           {selectedAttempts.length > 0 ? (
-            selectedAttempts.map((attempt, idx) => {
+            selectedAttempts.map((attempt) => {
               const area = attempt.selectedArea;
               const config = area ? AREA_CONFIG[area] : null;
               const focusLevel = 100 - Math.round(attempt.avgFrustration);
@@ -223,7 +235,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-slate-100">{area || 'Quiz Adaptativo'}</p>
+                          <p className="text-sm font-bold text-slate-100">{area || 'Adaptive Quiz'}</p>
                           <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${area ? 'bg-slate-800 text-slate-400' : 'bg-indigo-500/20 text-indigo-400'}`}>
                             {area ? 'Focado' : 'Adaptativo'}
                           </span>

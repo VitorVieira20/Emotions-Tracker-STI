@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Sparkles, BookOpen, X, Brain, ChevronRight, Type, Ear, FileText, MessageSquare, PenTool } from 'lucide-react';
+import { Sparkles, BookOpen, X, Brain, ChevronRight, Type, Ear, FileText, MessageSquare, PenTool, LucideIcon } from 'lucide-react';
 import { startAdaptiveQuiz } from '../actions/adaptiveEngine';
 
-const AREA_CONFIG: Record<string, { color: string, icon: any }> = {
+const AREA_CONFIG: Record<string, { color: string, icon: LucideIcon }> = {
   'Listening': { color: '#8B5CF6', icon: Ear },
   'Reading': { color: '#EF4444', icon: BookOpen },
   'Writing': { color: '#3B82F6', icon: PenTool },
@@ -96,7 +96,7 @@ export default function QuizSelectionModal({ isOpen, onClose }: QuizSelectionMod
                   <Brain size={24} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-slate-50 text-lg">Área Específica</h3>
+                  <h3 className="font-bold text-slate-50 text-lg">Componente Específica</h3>
                   <p className="text-slate-400 text-sm mt-1">Foque o seu estudo num componente específico para dominar a matéria.</p>
                 </div>
                 <ChevronRight className="self-center text-slate-500 group-hover:text-slate-300 transition-colors" />
