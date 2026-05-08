@@ -54,11 +54,17 @@ model Question {
   responses QuestionResponse[]
 }
 
+enum QuizStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
 model QuizAttempt {
   id              String             @id @default(cuid())
   userId          String
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  status          QuizStatus         @default(IN_PROGRESS)
   startTime       DateTime           @default(now())
   endTime         DateTime?    
   

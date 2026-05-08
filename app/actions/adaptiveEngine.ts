@@ -1,12 +1,13 @@
 'use server';
 
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/lib/auth';
 import prisma from '@/app/lib/prisma';
 import { quizFinalStats } from '../lib/utils/quiz-helpers';
 import { QuestionResponse } from '@/types/QuestionResponse';
 import { Difficulty } from '@/types/Difficulty';
 import { initializeQuiz } from '../services/quizService';
+import { QuizStatus } from '@/types/QuizStatus';
 
 export async function startAdaptiveQuiz(selectedArea?: string) {
   try {
@@ -28,8 +29,10 @@ export async function startAdaptiveQuiz(selectedArea?: string) {
 
 export async function getQuizAttemptStatus(attemptId: string) {
   try {
+    console.log(`[DEBUG] getQuizAttemptStatus called with attemptId: ${attemptId}`);
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
+      console.error('[DEBUG] User not authenticated');
       throw new Error('User not authenticated');
     }
 
@@ -46,62 +49,113 @@ export async function getQuizAttemptStatus(attemptId: string) {
     });
 
     if (!attempt) {
+      console.error(`[DEBUG] Quiz attempt not found for ID: ${attemptId}`);
       throw new Error('Quiz attempt not found');
     }
 
-    if (attempt.endTime) {
+    if (attempt.status === QuizStatus.COMPLETED || attempt.endTime) {
       return { finished: true };
     }
 
     const responseCount = attempt.responses.length;
+    const QUIZ_LENGTH = 10;
 
-    if (responseCount === 0) {
-      const user = attempt.user;
-      if (!user) throw new Error('User not found');
+    if (responseCount >= QUIZ_LENGTH) {
+      await prisma.quizAttempt.update({
+        where: { id: attemptId },
+        data: { status: QuizStatus.COMPLETED, endTime: new Date() }
+      });
+      return { finished: true };
+    }
 
-      const focusArea = attempt.selectedArea || 'Grammar';
+    // Resumption logic
+    if (responseCount > 0) {
+      console.log(`[DEBUG] Resumption logic for responseCount: ${responseCount}`);
       
+      const lastResponse = attempt.responses[responseCount - 1];
+      const currentQuestion = lastResponse.question;
+      
+      const focusArea = attempt.selectedArea || currentQuestion.area;
       const skillLevel = await prisma.userSkillLevel.findFirst({
         where: { userId: session.user.id, area: { equals: focusArea, mode: 'insensitive' } }
       });
-      const effectiveLevel = skillLevel ? skillLevel.level : user.englishLevel!;
+      const effectiveLevel = skillLevel ? skillLevel.level : attempt.user.englishLevel!;
 
-      const questions = await prisma.question.findMany({
+      const answeredQuestionIds = attempt.responses.map(r => r.questionId);
+      
+      const nextQuestions = await prisma.question.findMany({
         where: {
           cefrLevel: effectiveLevel,
           area: { equals: focusArea, mode: 'insensitive' },
+          id: { notIn: answeredQuestionIds },
         },
-        take: 20
+        take: 10
       });
-      
-      const firstQuestion = questions.length > 0 
-        ? questions[Math.floor(Math.random() * questions.length)]
+
+      const nextQuestion = nextQuestions.length > 0 
+        ? nextQuestions[Math.floor(Math.random() * nextQuestions.length)]
         : null;
 
-      if (!firstQuestion) {
-          // Absolute fallback
-          const anyQuestion = await prisma.question.findFirst({
-              where: { cefrLevel: effectiveLevel }
-          });
-          return { finished: false, question: anyQuestion, questionNumber: 1 };
+      if (!nextQuestion) {
+        return { finished: true };
       }
 
       return {
         finished: false,
-        question: firstQuestion,
-        questionNumber: 1
+        question: nextQuestion,
+        questionNumber: responseCount + 1
       };
     }
 
-    return { 
+    // Initial load logic (responseCount === 0)
+    console.log(`[DEBUG] Initial load logic for attemptId: ${attemptId}`);
+    const user = attempt.user;
+    if (!user) throw new Error('User not found');
+
+    const focusArea = attempt.selectedArea || 'Grammar';
+    
+    const skillLevel = await prisma.userSkillLevel.findFirst({
+      where: { userId: session.user.id, area: { equals: focusArea, mode: 'insensitive' } }
+    });
+    const effectiveLevel = skillLevel ? skillLevel.level : user.englishLevel!;
+
+    console.log(`[DEBUG] Fetching questions for level: ${effectiveLevel}, area: ${focusArea}`);
+    const questions = await prisma.question.findMany({
+      where: {
+        cefrLevel: effectiveLevel,
+        area: { equals: focusArea, mode: 'insensitive' },
+      },
+      take: 20
+    });
+    
+    const firstQuestion = questions.length > 0 
+      ? questions[Math.floor(Math.random() * questions.length)]
+      : null;
+
+    if (!firstQuestion) {
+        console.log(`[DEBUG] No questions found for area ${focusArea}, trying level fallback`);
+        const anyQuestion = await prisma.question.findFirst({
+            where: { cefrLevel: effectiveLevel }
+        });
+        
+        if (!anyQuestion) {
+          console.log(`[DEBUG] No questions found for level ${effectiveLevel}, trying absolute fallback`);
+          const absoluteFallback = await prisma.question.findFirst();
+          return { finished: false, question: absoluteFallback, questionNumber: 1 };
+        }
+        
+        return { finished: false, question: anyQuestion, questionNumber: 1 };
+    }
+
+    return {
       finished: false,
-      question: null, // Should be handled by resume logic if needed
-      questionNumber: responseCount + 1
+      question: firstQuestion,
+      questionNumber: 1
     };
 
   } catch (error) {
     console.error('Error getting quiz status:', error);
-    return { error: 'Failed to load quiz.' };
+    return { error: error instanceof Error ? error.message : 'Failed to load quiz.' };
   }
 }
 
@@ -115,6 +169,7 @@ export async function submitAnswerAndGetNext(
   timeSpentSeconds: number
 ) {
   try {
+    // 1. Save the Response immediately
     await prisma.questionResponse.create({
       data: {
         attemptId,
@@ -127,36 +182,39 @@ export async function submitAnswerAndGetNext(
       },
     });
 
-    const responseCount = await prisma.questionResponse.count({
+    // 2. Fetch all current responses to calculate progress
+    const allResponses = await prisma.questionResponse.findMany({
       where: { attemptId },
+      include: { question: true }
+    }) as unknown as QuestionResponse[];
+
+    const responseCount = allResponses.length;
+    const QUIZ_LENGTH = 10;
+    
+    // 3. Update the QuizAttempt with intermediate results
+    const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);
+    const totalTimeSpent = allResponses.reduce((acc, r) => acc + (r.timeSpentSeconds || 0), 0);
+
+    const isFinished = responseCount >= QUIZ_LENGTH;
+
+    await prisma.quizAttempt.update({
+      where: { id: attemptId },
+      data: {
+        score: finalScore,
+        totalQuestions: responseCount,
+        avgFrustration: avgFrustration,
+        totalHintsUsed: totalHints,
+        status: isFinished ? QuizStatus.COMPLETED : QuizStatus.IN_PROGRESS,
+        endTime: isFinished ? new Date() : null,
+      },
     });
 
-    const QUIZ_LENGTH = 10;
-
-    if (responseCount >= QUIZ_LENGTH) {
-      const allResponses = await prisma.questionResponse.findMany({
-        where: { attemptId },
-        include: { question: true }
-      }) as unknown as QuestionResponse[];
-      
-      const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);
-      const totalTimeSpent = allResponses.reduce((acc, r) => acc + (r.timeSpentSeconds || 0), 0);
-
-      await prisma.quizAttempt.update({
-        where: { id: attemptId },
-        data: {
-          endTime: new Date(),
-          score: finalScore,
-          totalQuestions: allResponses.length,
-          avgFrustration: avgFrustration,
-          totalHintsUsed: totalHints
-        },
-      });
+    if (isFinished) {
       return { 
         finished: true, 
         stats: { 
           score: finalScore, 
-          totalQuestions: allResponses.length, 
+          totalQuestions: responseCount, 
           totalHints, 
           avgFrustration,
           totalTimeSpent 
@@ -201,10 +259,7 @@ export async function submitAnswerAndGetNext(
       }
     }
 
-    const answeredQuestionIds = await prisma.questionResponse.findMany({
-      where: { attemptId },
-      select: { questionId: true },
-    }).then((responses) => responses.map(r => r.questionId));
+    const answeredQuestionIds = allResponses.map(r => r.questionId);
 
     let nextQuestions = await prisma.question.findMany({
       where: {
@@ -257,22 +312,11 @@ export async function submitAnswerAndGetNext(
     }
 
     if (nextQuestions.length === 0) {
-      const allResponses = await prisma.questionResponse.findMany({
-        where: { attemptId },
-        include: { question: true }
-      }) as unknown as QuestionResponse[];
-
-      const { finalScore, totalHints, avgFrustration } = quizFinalStats(allResponses);
-      const totalTimeSpent = allResponses.reduce((acc, r) => acc + (r.timeSpentSeconds || 0), 0);
-
       await prisma.quizAttempt.update({
         where: { id: attemptId },
         data: {
+          status: QuizStatus.COMPLETED,
           endTime: new Date(),
-          score: finalScore,
-          totalQuestions: allResponses.length,
-          avgFrustration: avgFrustration,
-          totalHintsUsed: totalHints
         },
       });
 
@@ -280,7 +324,7 @@ export async function submitAnswerAndGetNext(
         finished: true, 
         stats: { 
           score: finalScore, 
-          totalQuestions: allResponses.length, 
+          totalQuestions: responseCount, 
           totalHints, 
           avgFrustration,
           totalTimeSpent 

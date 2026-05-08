@@ -57,16 +57,20 @@ const transformedQuestions = allQuestions.map(q => {
   const areaKey = q.area.toLowerCase();
   const levelKey = q.cefrLevel.toLowerCase();
   const counterKey = `${areaKey}-${levelKey}`;
-  
+
   counters[counterKey] = (counters[counterKey] || 0) + 1;
   const index = counters[counterKey].toString().padStart(2, '0');
   const slug = `${areaKey}-${levelKey}-${index}`;
+
+  const finalFileName = `${slug}.mp3`;
+  const audioUrl = `/audio/questions/${finalFileName}`;
 
   return {
     ...q,
     text,
     audioText,
-    slug
+    slug,
+    audioUrl
   };
 });
 
@@ -82,9 +86,9 @@ async function main() {
       log.error('No questions found to seed');
       return;
     }
-    
+
     log.info(`Seeding ${transformedQuestions.length} questions...`);
-    
+
     const result = await prisma.question.createMany({
       data: transformedQuestions,
       skipDuplicates: true,

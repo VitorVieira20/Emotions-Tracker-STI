@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/app/lib/auth';
 import prisma from '@/app/lib/prisma';
 import { BrainCircuit, Trophy, Target, Clock, Ear, BookOpen, PenTool, MessageSquare, Type, FileText, LucideIcon } from 'lucide-react';
 import { QuizAttempt } from '@/types/QuizAttempt';
@@ -51,10 +51,9 @@ export default async function StudentDashboard() {
   });
   if (!user) redirect('/login');
 
-  const completedAttempts = await prisma.quizAttempt.findMany({
+  const allAttempts = await prisma.quizAttempt.findMany({
     where: {
       userId: session.user.id,
-      endTime: { not: null }
     },
     orderBy: { startTime: 'desc' },
     include: {
@@ -65,6 +64,8 @@ export default async function StudentDashboard() {
       },
     },
   }) as QuizAttempt[];
+
+  const completedAttempts = allAttempts.filter(a => a.endTime !== null);
 
   const totalQuestionsAnswered = completedAttempts.reduce((sum, a) => sum + (a.totalQuestions || 0), 0);
   const totalCorrect = completedAttempts.reduce((sum, a) => sum + (a.score || 0), 0);
@@ -151,7 +152,7 @@ export default async function StudentDashboard() {
           <SkillsGrid skills={skillsBreakdown} />
 
           <div id="activity-history-wrapper">
-            <InteractiveQuizHistory attempts={completedAttempts} />
+            <InteractiveQuizHistory attempts={allAttempts} />
           </div>
         </div>
       </main>

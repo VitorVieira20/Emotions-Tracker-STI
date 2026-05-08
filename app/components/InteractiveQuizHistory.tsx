@@ -36,7 +36,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
 
   useEffect(() => {
     setMounted(true);
-    
+
     const params = new URLSearchParams(window.location.search);
     const filter = params.get('filter');
     if (filter) setActiveFilter(filter);
@@ -133,7 +133,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
             <h2 className="text-xl font-bold text-slate-50 font-display">Histórico de Atividade</h2>
           </div>
           {activeFilter && (
-            <button 
+            <button
               onClick={clearFilter}
               className="flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-wider hover:bg-indigo-500/20 transition-all cursor-pointer"
             >
@@ -151,7 +151,7 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
             {Array.from({ length: totalCols }).map((_, colIndex) => {
               const firstDayIdx = colIndex * 7;
               const day = heatmapDays[firstDayIdx];
-             const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+              const monthNames = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
               const prevDay = colIndex > 0 ? heatmapDays[(colIndex - 1) * 7] : null;
               const isNewMonth = !prevDay || day.month !== prevDay.month;
@@ -228,37 +228,97 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
                 >
                   <div className="absolute left-[-5px] top-1 w-2 h-2 rounded-full bg-slate-800 group-hover:bg-indigo-500 transition-colors"></div>
 
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-950/40 p-4 rounded-2xl border border-white/5 group-hover:border-white/10 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2.5 rounded-xl bg-slate-900 border border-white/5 shadow-inner" style={{ color: config?.color || '#6366f1' }}>
-                        {config ? <config.icon size={18} /> : <Brain size={18} />}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-slate-100">{area || 'Adaptive Quiz'}</p>
-                          <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${area ? 'bg-slate-800 text-slate-400' : 'bg-indigo-500/20 text-indigo-400'}`}>
-                            {area ? 'Focado' : 'Adaptativo'}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{formatTime(new Date(attempt.startTime))}</p>
+                  <div className={`group relative flex flex-col bg-slate-900/40 backdrop-blur-sm p-6 rounded-3xl border border-white/[0.03] hover:border-white/10 hover:bg-slate-900/60 transition-all duration-300 overflow-hidden ${attempt.status === 'IN_PROGRESS' ? 'min-h-[200px] pb-0' : 'min-h-[180px]'}`}>
+                    <div className={`
+    absolute top-0 right-0 px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] border-l border-b z-20
+    ${attempt.status === 'IN_PROGRESS'
+                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/20 rounded-bl-2xl'
+                        : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/10 rounded-bl-2xl'}
+  `}>
+                      <div className="flex items-center gap-2">
+                        {attempt.status === 'IN_PROGRESS' ? (
+                          <>
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                            </span>
+                            Em Curso
+                          </>
+                        ) : 'Concluído'}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                      <div className="flex flex-col items-end">
-                        <span className="text-[9px] text-slate-500 font-black uppercase">Estabilidade</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-1 bg-slate-800 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 transition-all" style={{ width: `${focusLevel}%` }}></div>
-                          </div>
-                          <span className="text-xs font-bold text-slate-300">{focusLevel}%</span>
+                    <div className="flex items-center gap-5">
+                      <div
+                        className="relative p-3 rounded-2xl bg-slate-950 border border-white/5 shadow-2xl shrink-0"
+                        style={{ color: config?.color || '#6366f1' }}
+                      >
+                        <div className="absolute inset-0 blur-xl opacity-20" style={{ backgroundColor: config?.color || '#6366f1' }} />
+                        <div className="relative">
+                          {config ? <config.icon size={24} /> : <Brain size={24} />}
                         </div>
                       </div>
-                      <div className="flex flex-col items-end min-w-[60px]">
-                        <span className="text-[9px] text-slate-500 font-black uppercase">Score</span>
-                        <p className="text-sm font-black text-white">{attempt.score}<span className="text-slate-500">/{attempt.totalQuestions}</span></p>
+
+                      <div className="flex flex-col">
+                        <h4 className="text-base font-bold text-slate-100 tracking-tight leading-none">
+                          {area || 'Adaptive Quiz'}
+                        </h4>
+                        <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-2 opacity-60">
+                          {formatTime(new Date(attempt.startTime))}
+                        </span>
                       </div>
-                      <ChevronsRight size={18} className="text-slate-700 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    </div>
+
+                    <div className="mt-auto flex flex-col gap-6">
+
+                      {attempt.status === 'IN_PROGRESS' ? (
+                        <div className="flex flex-col gap-4">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); window.location.href = `/quiz/${attempt.id}`; }}
+                            className="w-fit px-8 py-3 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-amber-900/20 cursor-pointer"
+                          >
+                            Continuar
+                          </button>
+
+                          {/* Barra de Progresso Encostada ao fundo */}
+                          <div className="flex flex-col gap-2 pb-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-amber-500/70 font-black uppercase tracking-[0.2em]">Progresso Ativo</span>
+                              <span className="text-[11px] font-black text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg border border-amber-500/10">
+                                {attempt.responses?.length || 0} / 10
+                              </span>
+                            </div>
+                            <div className="relative w-full h-2 bg-slate-800/40 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all duration-1000 ease-out rounded-full"
+                                style={{ width: `${(attempt.responses?.length || 0) * 10}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-end justify-between border-t border-white/5 pt-6 mt-2">
+                          <div className="flex items-center gap-8">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Estabilidade</span>
+                              <span className="text-lg font-black text-emerald-400 tabular-nums leading-none">{focusLevel}%</span>
+                            </div>
+
+                            <div className="h-8 w-px bg-white/5" /> {/* Separador Vertical */}
+
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Score</span>
+                              <p className="text-lg font-black text-white tabular-nums leading-none">
+                                {attempt.score}<span className="text-slate-600 font-medium text-xs">/10</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="p-3 rounded-2xl bg-slate-800/40 text-slate-500 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-all cursor-pointer">
+                            <ChevronsRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -273,21 +333,17 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
         </div>
       </div>
 
-      {/* Detail Modal via Portal */}
       {selectedAttempt && mounted && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300"
             onClick={() => setSelectedAttempt(null)}
           />
 
-          {/* Modal Container */}
           <div
             className="relative bg-slate-900 border border-white/10 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Glow */}
             <div className="absolute -left-20 -top-20 w-64 h-64 bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
 
             {/* Header */}
@@ -313,7 +369,6 @@ export default function InteractiveQuizHistory({ attempts }: { attempts: QuizAtt
               </button>
             </div>
 
-            {/* Body */}
             <div className="p-6 space-y-4 overflow-y-auto relative z-10 custom-scrollbar">
               {selectedAttempt.responses.map((response, idx) => (
                 <div key={response.id} className="p-5 rounded-2xl border border-white/5 bg-slate-950/40 backdrop-blur-sm group hover:border-white/10 transition-all">
