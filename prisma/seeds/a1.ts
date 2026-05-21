@@ -7,7 +7,7 @@ export const a1Questions = [
     text: "___ is your name?",
     options: ["What", "Who", "Where", "When"],
     correctOption: 0,
-    hint: "Use the question word that asks for information about a thing.",
+    hint: "Usa a palavra de pergunta que pede informações sobre uma coisa.",
   },
   {
     cefrLevel: "A1",
@@ -16,7 +16,7 @@ export const a1Questions = [
     text: "I ___ a student.",
     options: ["is", "are", "am", "be"],
     correctOption: 2,
-    hint: "Which form of the verb 'to be' goes with the pronoun 'I'?",
+    hint: "Qual a forma do verbo 'to be' que acompanha o pronome 'I'?",
   },
   {
     cefrLevel: "A1",
@@ -25,7 +25,7 @@ export const a1Questions = [
     text: "She ___ from Spain.",
     options: ["are", "is", "am", "be"],
     correctOption: 1,
-    hint: "Which form of 'to be' is used for 'he', 'she', or 'it'?",
+    hint: "Qual a forma do 'to be' que é usada para 'he', 'she' ou 'it'?",
   },
   {
     cefrLevel: "A1",
@@ -34,7 +34,7 @@ export const a1Questions = [
     text: "They ___ English.",
     options: ["speak", "speaks", "speaking", "is speak"],
     correctOption: 0,
-    hint: "For 'they', the base form of the verb is usually correct in the present tense.",
+    hint: "Para 'they', a forma base do verbo é geralmente a correta no presente.",
   },
   {
     cefrLevel: "A1",
@@ -43,7 +43,7 @@ export const a1Questions = [
     text: "He ___ have a car.",
     options: ["don't", "isn't", "doesn't", "aren't"],
     correctOption: 2,
-    hint: "For negative sentences with 'he', 'she', or 'it', we use a special helping verb.",
+    hint: "Para frases negativas com 'he', 'she' ou 'it', usamos um verbo auxiliar especial.",
   },
   {
     cefrLevel: "A1",
@@ -52,7 +52,7 @@ export const a1Questions = [
     text: "There ___ a book on the table.",
     options: ["is", "are", "am", "be"],
     correctOption: 0,
-    hint: "Use 'is' for singular items and 'are' for plural items.",
+    hint: "Usa 'is' para itens no singular e 'are' para itens no plural.",
   },
   {
     cefrLevel: "A1",
@@ -61,7 +61,7 @@ export const a1Questions = [
     text: "Can you pass me ___ apple, please?",
     options: ["a", "an", "the", "some"],
     correctOption: 1,
-    hint: "Which article do we use before a word that starts with a vowel sound?",
+    hint: "Qual artigo usamos antes de uma palavra que começa com som de vogal?",
   },
   {
     cefrLevel: "A1",
@@ -70,7 +70,7 @@ export const a1Questions = [
     text: "These are my ___.",
     options: ["friend", "friends", "friend's", "friends'"],
     correctOption: 1,
-    hint: "When talking about more than one person, we usually add an 's' to the noun.",
+    hint: "Quando falamos de mais de uma pessoa, geralmente adicionamos um 's' ao substantivo.",
   },
   {
     cefrLevel: "A1",
@@ -79,7 +79,7 @@ export const a1Questions = [
     text: "I live ___ London.",
     options: ["in", "on", "at", "under"],
     correctOption: 0,
-    hint: "Which preposition is used for cities, countries, and large areas?",
+    hint: "Qual preposição é usada para cidades, países e áreas grandes?",
   },
   {
     cefrLevel: "A1",
@@ -88,7 +88,7 @@ export const a1Questions = [
     text: "What time ___ you get up?",
     options: ["do", "does", "are", "is"],
     correctOption: 0,
-    hint: "Which helping verb do we use to ask questions with 'you' in the present simple?",
+    hint: "Qual verbo auxiliar usamos para fazer perguntas com 'you' no presente simples?",
   },
 
   // A1 - Vocabulary (10 questions)
@@ -99,7 +99,7 @@ export const a1Questions = [
     text: "The opposite of 'hot' is ___.",
     options: ["cold", "warm", "cool", "fire"],
     correctOption: 0,
-    hint: "Think about the weather in winter.",
+    hint: "Pensa no tempo no inverno.",
   },
   {
     cefrLevel: "A1",
@@ -108,7 +108,7 @@ export const a1Questions = [
     text: "A cat says ___.",
     options: ["woof", "moo", "meow", "oink"],
     correctOption: 2,
-    hint: "This is a common pet.",
+    hint: "Este é um animal de estimação comum.",
   },
   {
     cefrLevel: "A1",
@@ -117,7 +117,7 @@ export const a1Questions = [
     text: "What color is a banana?",
     options: ["Red", "Blue", "Green", "Yellow"],
     correctOption: 3,
-    hint: "It's the color of the sun.",
+    hint: "É a cor do sol.",
   },
   {
     cefrLevel: "A1",
@@ -126,7 +126,7 @@ export const a1Questions = [
     text: "You use a ___ to write.",
     options: ["chair", "pen", "fork", "bed"],
     correctOption: 1,
-    hint: "It's a tool for putting words on paper.",
+    hint: "É uma ferramenta para colocar palavras no papel.",
   },
   {
     cefrLevel: "A1",
@@ -135,7 +135,7 @@ export const a1Questions = [
     text: "Which of these is a fruit?",
     options: ["Carrot", "Potato", "Apple", "Broccoli"],
     correctOption: 2,
-    hint: "It's often red or green and grows on trees.",
+    hint: "É muitas vezes vermelha ou verde e cresce em árvores.",
   },
   {
     cefrLevel: "A1",
@@ -144,7 +144,7 @@ export const a1Questions = [
     text: "Your mother's son is your ___.",
     options: ["sister", "uncle", "brother", "aunt"],
     correctOption: 2,
-    hint: "This is a male sibling.",
+    hint: "Este é um irmão do sexo masculino.",
   },
   {
     cefrLevel: "A1",
@@ -153,7 +153,7 @@ export const a1Questions = [
     text: "What do you wear on your feet?",
     options: ["Hats", "Gloves", "Socks", "Scarves"],
     correctOption: 2,
-    hint: "You usually put these on before your shoes.",
+    hint: "Geralmente calças isto antes dos sapatos.",
   },
   {
     cefrLevel: "A1",
@@ -162,7 +162,7 @@ export const a1Questions = [
     text: "The number after nine is ___.",
     options: ["eight", "seven", "ten", "eleven"],
     correctOption: 2,
-    hint: "Count from one to ten.",
+    hint: "Conta de um a dez.",
   },
   {
     cefrLevel: "A1",
@@ -171,7 +171,7 @@ export const a1Questions = [
     text: "Which of these is a room in a house?",
     options: ["Garage", "Garden", "Kitchen", "Street"],
     correctOption: 2,
-    hint: "This is where you cook food.",
+    hint: "É aqui que cozinhas a comida.",
   },
   {
     cefrLevel: "A1",
@@ -180,7 +180,7 @@ export const a1Questions = [
     text: "A baby dog is called a ___.",
     options: ["kitten", "puppy", "calf", "chick"],
     correctOption: 1,
-    hint: "This is a young canine.",
+    hint: "Este é um canino jovem.",
   },
 
   // A1 - Reading (10 questions)
@@ -191,7 +191,7 @@ export const a1Questions = [
     text: "Read the text: 'My name is John. I am a doctor.' What is John's job?",
     options: ["Teacher", "Student", "Doctor", "Engineer"],
     correctOption: 2,
-    hint: "The text says 'I am a...'",
+    hint: "O texto diz 'I am a...'",
   },
   {
     cefrLevel: "A1",
@@ -200,7 +200,7 @@ export const a1Questions = [
     text: "Read the sign: 'STOP'. What should you do?",
     options: ["Go faster", "Stop moving", "Look left", "Continue"],
     correctOption: 1,
-    hint: "The word itself is a command.",
+    hint: "A própria palavra é um comando.",
   },
   {
     cefrLevel: "A1",
@@ -209,7 +209,7 @@ export const a1Questions = [
     text: "Read the text: 'I have a cat and a dog. The cat is black.' What color is the cat?",
     options: ["White", "Brown", "Black", "The text doesn't say"],
     correctOption: 2,
-    hint: "Find the sentence that describes the cat.",
+    hint: "Encontra a frase que descreve o gato.",
   },
   {
     cefrLevel: "A1",
@@ -218,7 +218,7 @@ export const a1Questions = [
     text: "Read the menu: 'Cheeseburger - $5, Soda - $2'. How much is a cheeseburger?",
     options: ["$2", "$5", "$7", "$3"],
     correctOption: 1,
-    hint: "Look for the price next to the word 'Cheeseburger'.",
+    hint: "Procura o preço ao lado da palavra 'Cheeseburger'.",
   },
   {
     cefrLevel: "A1",
@@ -227,7 +227,7 @@ export const a1Questions = [
     text: "Read the email: 'Hi Sarah, The meeting is at 3 PM. Thanks, Tom.' When is the meeting?",
     options: ["In the morning", "At 3 PM", "At 3 AM", "Tomorrow"],
     correctOption: 1,
-    hint: "The email explicitly states the time.",
+    hint: "O e-mail indica explicitamente a hora.",
   },
   {
     cefrLevel: "A1",
@@ -236,7 +236,7 @@ export const a1Questions = [
     text: "Read the text: 'Maria likes apples, but she does not like oranges.' Which fruit does Maria NOT like?",
     options: ["Apples", "Bananas", "Oranges", "Grapes"],
     correctOption: 2,
-    hint: "The text uses 'but she does not like...' to show a preference.",
+    hint: "O texto usa 'but she does not like...' para mostrar uma preferência.",
   },
   {
     cefrLevel: "A1",
@@ -245,7 +245,7 @@ export const a1Questions = [
     text: "Read the text: 'The library is closed on Sundays.' Can you go to the library on Sunday?",
     options: ["Yes", "No", "Only in the morning", "Maybe"],
     correctOption: 1,
-    hint: "What does 'closed' mean?",
+    hint: "O que significa 'closed'?",
   },
   {
     cefrLevel: "A1",
@@ -254,7 +254,7 @@ export const a1Questions = [
     text: "Read the text: 'He wears a blue shirt and white shoes.' What color are his shoes?",
     options: ["Blue", "Red", "Black", "White"],
     correctOption: 3,
-    hint: "Find the part of the sentence that talks about shoes.",
+    hint: "Encontra a parte da frase que fala sobre sapatos.",
   },
   {
     cefrLevel: "A1",
@@ -263,7 +263,7 @@ export const a1Questions = [
     text: "Read the sign: 'Exit'. Where does this sign lead?",
     options: ["To the entrance", "To the way out", "To the bathroom", "To the manager's office"],
     correctOption: 1,
-    hint: "This word means to leave a place.",
+    hint: "Esta palavra significa sair de um lugar.",
   },
   {
     cefrLevel: "A1",
@@ -272,7 +272,7 @@ export const a1Questions = [
     text: "Read the text: 'My brother is tall. He has short hair.' What is his hair like?",
     options: ["Long", "Blonde", "Short", "Curly"],
     correctOption: 2,
-    hint: "The second sentence describes his hair.",
+    hint: "A segunda frase descreve o cabelo dele.",
   },
 
   // A1 - Listening (10 questions)
@@ -284,7 +284,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'Hello!').' Choose the correct greeting.",
     options: ["Goodbye", "Hello", "Thank you", "Sorry"],
     correctOption: 1,
-    hint: "This is a common way to start a conversation.",
+    hint: "Esta é uma forma comum de começar uma conversa.",
   },
   {
     slug: "listening-a1-02",
@@ -294,7 +294,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'My favorite color is blue.').' What is the favorite color?",
     options: ["Red", "Green", "Blue", "Yellow"],
     correctOption: 2,
-    hint: "The speaker names a specific color.",
+    hint: "O orador menciona uma cor específica.",
   },
   {
     slug: "listening-a1-03",
@@ -304,7 +304,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'Can I have a coffee, please?').' What does the person want?",
     options: ["Tea", "Water", "Coffee", "Juice"],
     correctOption: 2,
-    hint: "The person is ordering a drink.",
+    hint: "A pessoa está a pedir uma bebida.",
   },
   {
     slug: "listening-a1-04",
@@ -314,7 +314,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'It's a sunny day.').' What is the weather like?",
     options: ["Rainy", "Snowy", "Windy", "Sunny"],
     correctOption: 3,
-    hint: "This weather is associated with the sun.",
+    hint: "Este tempo está associado ao sol.",
   },
   {
     slug: "listening-a1-05",
@@ -324,7 +324,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'My flight is at ten thirty.').' What is the flight time?",
     options: ["10:00", "10:30", "11:00", "11:30"],
     correctOption: 1,
-    hint: "'Thirty' often means 30 minutes past the hour.",
+    hint: "'Thirty' significa muitas vezes 30 minutos depois da hora.",
   },
   {
     slug: "listening-a1-06",
@@ -334,7 +334,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I have two brothers and one sister.').' How many sisters does the person have?",
     options: ["One", "Two", "Three", "None"],
     correctOption: 0,
-    hint: "Listen for the number before the word 'sister'.",
+    hint: "Ouve o número antes da palavra 'sister'.",
   },
   {
     slug: "listening-a1-07",
@@ -344,7 +344,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'The number is five.').' Choose the number you heard.",
     options: ["2", "5", "8", "10"],
     correctOption: 1,
-    hint: "This is the number between four and six.",
+    hint: "Este é o número entre quatro e seis.",
   },
   {
     slug: "listening-a1-08",
@@ -354,7 +354,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I am from Canada.').' Where is the person from?",
     options: ["The USA", "The UK", "Australia", "Canada"],
     correctOption: 3,
-    hint: "The speaker names a country in North America.",
+    hint: "O orador menciona um país na América do Norte.",
   },
   {
     slug: "listening-a1-09",
@@ -364,7 +364,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'Excuse me, where is the train station?').' What is the person looking for?",
     options: ["A bus stop", "A hotel", "A train station", "A restaurant"],
     correctOption: 2,
-    hint: "The person is asking for directions to a place with trains.",
+    hint: "A pessoa está a pedir direções para um local com comboios.",
   },
   {
     slug: "listening-a1-10",
@@ -374,7 +374,7 @@ export const a1Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I don't like cheese.').' Does the person like cheese?",
     options: ["Yes", "No", "Maybe", "Sometimes"],
     correctOption: 1,
-    hint: "The phrase 'I don't like' is a negation.",
+    hint: "A frase 'I don't like' é uma negação.",
   },
 
   // A1 - Speaking (10 questions)
@@ -385,7 +385,7 @@ export const a1Questions = [
     text: "How would you introduce yourself? Choose the best phrase.",
     options: ["My name is...", "You are...", "I am from...", "It is..."],
     correctOption: 0,
-    hint: "This is the most common way to tell someone your name.",
+    hint: "Esta é a forma mais comum de dizer o teu nome a alguém.",
   },
   {
     cefrLevel: "A1",
@@ -394,7 +394,7 @@ export const a1Questions = [
     text: "Someone says 'Thank you.' What is the best reply?",
     options: ["Please.", "I am fine.", "You're welcome.", "Goodbye."],
     correctOption: 2,
-    hint: "This is a polite response to being thanked.",
+    hint: "Esta é uma resposta educada a um agradecimento.",
   },
   {
     cefrLevel: "A1",
@@ -403,7 +403,7 @@ export const a1Questions = [
     text: "You want to know the time. What do you ask?",
     options: ["What time is it?", "How are you?", "Where is the bank?", "What is this?"],
     correctOption: 0,
-    hint: "This question directly asks for the current time.",
+    hint: "Esta pergunta questiona diretamente a hora atual.",
   },
   {
     cefrLevel: "A1",
@@ -412,7 +412,7 @@ export const a1Questions = [
     text: "Choose the best way to order a coffee in a cafe.",
     options: ["Give me coffee.", "Coffee!", "I want coffee.", "Can I have a coffee, please?"],
     correctOption: 3,
-    hint: "Politeness is key. Using 'Can I have...' and 'please' is very common.",
+    hint: "A educação é fundamental. Usar 'Can I have...' e 'please' é muito comum.",
   },
   {
     cefrLevel: "A1",
@@ -421,7 +421,7 @@ export const a1Questions = [
     text: "Someone asks 'How are you?' What is a typical, positive response?",
     options: ["I am a teacher.", "I am at home.", "I'm fine, thanks.", "My name is Paul."],
     correctOption: 2,
-    hint: "This phrase is used to say you are feeling good.",
+    hint: "Esta frase é usada para dizer que te sentes bem.",
   },
   {
     cefrLevel: "A1",
@@ -430,7 +430,7 @@ export const a1Questions = [
     text: "How do you say goodbye to a friend?",
     options: ["Hello!", "Nice to meet you.", "See you later!", "What's up?"],
     correctOption: 2,
-    hint: "This is an informal way to say you will see them again.",
+    hint: "Esta é uma forma informal de dizer que os verás novamente.",
   },
   {
     cefrLevel: "A1",
@@ -439,7 +439,7 @@ export const a1Questions = [
     text: "You don't understand something. What can you say?",
     options: ["I don't know.", "I'm sorry, I don't understand.", "It's okay.", "Yes, I do."],
     correctOption: 1,
-    hint: "This is a polite way to ask for clarification.",
+    hint: "Esta é uma forma educada de pedir um esclarecimento.",
   },
   {
     cefrLevel: "A1",
@@ -448,7 +448,7 @@ export const a1Questions = [
     text: "Choose the best question to ask about someone's job.",
     options: ["What your job?", "What do you do?", "You work?", "Where is your job?"],
     correctOption: 1,
-    hint: "'What do you do?' is a very common and natural way to ask this.",
+    hint: "'What do you do?' é uma forma muito comum e natural de perguntar isto.",
   },
   {
     cefrLevel: "A1",
@@ -457,7 +457,7 @@ export const a1Questions = [
     text: "How do you agree with someone's simple opinion, like 'It's a beautiful day'?",
     options: ["I not agree.", "No, it isn't.", "Yes, it is.", "Why?"],
     correctOption: 2,
-    hint: "A simple affirmation using the verb 'to be' works well here.",
+    hint: "Uma afirmação simples usando o verbo 'to be' funciona bem aqui.",
   },
   {
     cefrLevel: "A1",
@@ -466,7 +466,7 @@ export const a1Questions = [
     text: "Choose the best way to ask for the price of an item.",
     options: ["How much is it?", "What price?", "Is it expensive?", "I want to pay."],
     correctOption: 0,
-    hint: "This is the standard question for asking about cost.",
+    hint: "Esta é a pergunta padrão para perguntar o custo.",
   },
 
   // A1 - Writing (10 questions)
@@ -477,7 +477,7 @@ export const a1Questions = [
     text: "Choose the correct punctuation to end a sentence.",
     options: [",", ".", "?", "!"],
     correctOption: 1,
-    hint: "This mark is called a period or a full stop.",
+    hint: "Este sinal chama-se ponto final.",
   },
   {
     cefrLevel: "A1",
@@ -486,7 +486,7 @@ export const a1Questions = [
     text: "Which of these words should start with a capital letter?",
     options: ["day", "london", "cat", "book"],
     correctOption: 1,
-    hint: "Names of cities, people, and countries always start with a capital letter.",
+    hint: "Nomes de cidades, pessoas e países começam sempre com letra maiúscula.",
   },
   {
     cefrLevel: "A1",
@@ -495,7 +495,7 @@ export const a1Questions = [
     text: "How do you write the first person pronoun?",
     options: ["i", "Me", "I", "my"],
     correctOption: 2,
-    hint: "When 'I' is by itself, it is always a capital letter.",
+    hint: "Quando o 'I' está sozinho, é sempre uma letra maiúscula.",
   },
   {
     cefrLevel: "A1",
@@ -504,7 +504,7 @@ export const a1Questions = [
     text: "Choose the correctly written sentence.",
     options: ["he is from france", "He is from france.", "he is from France.", "He is from France."],
     correctOption: 3,
-    hint: "Sentences must start with a capital letter and end with punctuation. Countries are proper nouns.",
+    hint: "As frases devem começar com letra maiúscula e terminar com pontuação. Os países são nomes próprios.",
   },
   {
     cefrLevel: "A1",
@@ -513,7 +513,7 @@ export const a1Questions = [
     text: "You are writing a short email to a friend. How should you start?",
     options: ["Dear Sir,", "To whom it may concern,", "Hi [Friend's Name],", "Attention:"],
     correctOption: 2,
-    hint: "For informal emails, a simple 'Hi' or 'Hello' followed by the name is best.",
+    hint: "Para e-mails informais, o melhor é um simples 'Hi' ou 'Hello' seguido do nome.",
   },
   {
     cefrLevel: "A1",
@@ -522,7 +522,7 @@ export const a1Questions = [
     text: "Which sentence correctly uses 'a' and 'an'?",
     options: ["I have a dog and an cat.", "I have an dog and a cat.", "I have a dog and a cat.", "I have an dog and an cat."],
     correctOption: 2,
-    hint: "Use 'an' before words that start with a vowel sound (a, e, i, o, u).",
+    hint: "Usa 'an' antes de palavras que começam com um som de vogal (a, e, i, o, u).",
   },
   {
     cefrLevel: "A1",
@@ -531,7 +531,7 @@ export const a1Questions = [
     text: "What do you put at the end of a question?",
     options: [".", "!", ",", "?"],
     correctOption: 3,
-    hint: "This is called a question mark.",
+    hint: "Isto chama-se ponto de interrogação.",
   },
   {
     cefrLevel: "A1",
@@ -540,7 +540,7 @@ export const a1Questions = [
     text: "Choose the correct possessive form: 'The book belongs to Tom.'",
     options: ["Toms book", "Tom's book", "Toms' book", "Tom book's"],
     correctOption: 1,
-    hint: "To show possession for a singular noun, we add an apostrophe 's'.",
+    hint: "Para mostrar posse num substantivo singular, adicionamos um apóstrofo 's'.",
   },
   {
     cefrLevel: "A1",
@@ -549,7 +549,7 @@ export const a1Questions = [
     text: "Which sentence is correct?",
     options: ["They is happy.", "They're happy.", "Their happy.", "There happy."],
     correctOption: 1,
-    hint: "'They're' is the short form of 'They are'.",
+    hint: "'They're' é a forma curta de 'They are'.",
   },
   {
     cefrLevel: "A1",
@@ -558,6 +558,6 @@ export const a1Questions = [
     text: "How do you list items in a sentence?",
     options: ["I like apples and oranges and bananas.", "I like apples, oranges, bananas.", "I like apples, oranges and bananas.", "I like: apples, oranges, bananas."],
     correctOption: 2,
-    hint: "Use commas to separate items in a list, often with 'and' before the last item.",
+    hint: "Usa vírgulas para separar itens numa lista, muitas vezes com 'and' antes do último item.",
   },
 ];

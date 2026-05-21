@@ -7,7 +7,7 @@ export const a2Questions = [
     text: "He ___ to the cinema yesterday.",
     options: ["go", "goes", "went", "gone"],
     correctOption: 2,
-    hint: "Use the past simple tense for completed actions in the past.",
+    hint: "Usa o past simple para ações concluídas no passado.",
   },
   {
     cefrLevel: "A2",
@@ -16,7 +16,7 @@ export const a2Questions = [
     text: "There aren't ___ apples left.",
     options: ["some", "any", "a", "an"],
     correctOption: 1,
-    hint: "Use 'any' in negative sentences to talk about quantity.",
+    hint: "Usa 'any' em frases negativas para falar de quantidade.",
   },
   {
     cefrLevel: "A2",
@@ -25,7 +25,7 @@ export const a2Questions = [
     text: "She is ___ than her brother.",
     options: ["tall", "taller", "the tallest", "more tall"],
     correctOption: 1,
-    hint: "For one-syllable adjectives, add '-er' to make the comparative form.",
+    hint: "Para adjetivos de uma sílaba, adiciona '-er' para formar o comparativo.",
   },
   {
     cefrLevel: "A2",
@@ -34,7 +34,7 @@ export const a2Questions = [
     text: "What ___ you doing tomorrow evening?",
     options: ["are", "is", "do", "will"],
     correctOption: 0,
-    hint: "Use the present continuous tense for future arrangements.",
+    hint: "Usa o present continuous para planos futuros combinados.",
   },
   {
     cefrLevel: "A2",
@@ -43,7 +43,7 @@ export const a2Questions = [
     text: "I haven't seen that movie ___.",
     options: ["already", "just", "yet", "ever"],
     correctOption: 2,
-    hint: "'Yet' is often used in negative present perfect sentences.",
+    hint: "'Yet' é frequentemente usado em frases negativas no present perfect.",
   },
   {
     cefrLevel: "A2",
@@ -52,7 +52,7 @@ export const a2Questions = [
     text: "You ___ smoke in the hospital.",
     options: ["mustn't", "don't have to", "have to", "must"],
     correctOption: 0,
-    hint: "This modal verb expresses a strong prohibition or rule.",
+    hint: "Este verbo modal expressa uma proibição ou regra forte.",
   },
   {
     cefrLevel: "A2",
@@ -61,7 +61,7 @@ export const a2Questions = [
     text: "If it rains, I ___ an umbrella.",
     options: ["take", "will take", "took", "would take"],
     correctOption: 1,
-    hint: "This is a first conditional sentence, used for real future possibilities.",
+    hint: "Esta é uma frase de first conditional, usada para possibilidades reais no futuro.",
   },
   {
     cefrLevel: "A2",
@@ -70,7 +70,7 @@ export const a2Questions = [
     text: "He was ___ home when I called.",
     options: ["in", "on", "at", "to"],
     correctOption: 2,
-    hint: "Use this preposition for a specific location like 'home' or 'work'.",
+    hint: "Usa esta preposição para um local específico como 'home' ou 'work'.",
   },
   {
     cefrLevel: "A2",
@@ -79,7 +79,7 @@ export const a2Questions = [
     text: "The book was written ___ Jane Austen.",
     options: ["from", "with", "by", "of"],
     correctOption: 2,
-    hint: "Use this preposition in passive sentences to show who did the action.",
+    hint: "Usa esta preposição em frases passivas para mostrar quem realizou a ação.",
   },
   {
     cefrLevel: "A2",
@@ -88,7 +88,7 @@ export const a2Questions = [
     text: "She's going to the library ___ study.",
     options: ["for", "because", "so", "to"],
     correctOption: 3,
-    hint: "Use the infinitive of purpose to explain why someone is doing something.",
+    hint: "Usa o infinitivo de propósito para explicar por que alguém está a fazer algo.",
   },
 
   // A2 - Vocabulary (10 questions)
@@ -99,7 +99,7 @@ export const a2Questions = [
     text: "You can borrow books from a ___.",
     options: ["supermarket", "library", "cinema", "park"],
     correctOption: 1,
-    hint: "This place is full of books for reading and borrowing.",
+    hint: "Este lugar está cheio de livros para ler e requisitar.",
   },
   {
     cefrLevel: "A2",
@@ -108,7 +108,7 @@ export const a2Questions = [
     text: "The person who flies an airplane is called a ___.",
     options: ["doctor", "driver", "pilot", "chef"],
     correctOption: 2,
-    hint: "This job involves being in the cockpit of a plane.",
+    hint: "Este trabalho envolve estar no cockpit de um avião.",
   },
   {
     cefrLevel: "A2",
@@ -117,7 +117,7 @@ export const a2Questions = [
     text: "If you feel sick, you should go to a ___.",
     options: ["post office", "bank", "hospital", "station"],
     correctOption: 2,
-    hint: "Doctors and nurses work in this building.",
+    hint: "Médicos e enfermeiros trabalham neste edifício.",
   },
   {
     cefrLevel: "A2",
@@ -126,7 +126,7 @@ export const a2Questions = [
     text: "The month after June is ___.",
     options: ["May", "August", "July", "September"],
     correctOption: 2,
-    hint: "It's the seventh month of the year.",
+    hint: "É o sétimo mês do ano.",
   },
   {
     cefrLevel: "A2",
@@ -135,7 +135,7 @@ export const a2Questions = [
     text: "What is the opposite of 'expensive'?",
     options: ["cheap", "big", "beautiful", "new"],
     correctOption: 0,
-    hint: "This word means something doesn't cost a lot of money.",
+    hint: "Esta palavra significa que algo não custa muito dinheiro.",
   },
   {
     cefrLevel: "A2",
@@ -144,7 +144,7 @@ export const a2Questions = [
     text: "A person who designs buildings is an ___.",
     options: ["artist", "architect", "actor", "athlete"],
     correctOption: 1,
-    hint: "This profession combines art and engineering.",
+    hint: "Esta profissão combina arte e engenharia.",
   },
   {
     cefrLevel: "A2",
@@ -153,7 +153,7 @@ export const a2Questions = [
     text: "You need a ___ to travel to another country.",
     options: ["ticket", "passport", "map", "suitcase"],
     correctOption: 1,
-    hint: "This is an official document with your photo and nationality.",
+    hint: "Este é um documento oficial com a tua foto e nacionalidade.",
   },
   {
     cefrLevel: "A2",
@@ -162,7 +162,7 @@ export const a2Questions = [
     text: "The meal you eat in the morning is called ___.",
     options: ["lunch", "dinner", "snack", "breakfast"],
     correctOption: 3,
-    hint: "It often includes foods like eggs, cereal, or toast.",
+    hint: "Muitas vezes inclui alimentos como ovos, cereais ou torradas.",
   },
   {
     cefrLevel: "A2",
@@ -171,7 +171,7 @@ export const a2Questions = [
     text: "A place where you can see historical objects.",
     options: ["museum", "stadium", "theater", "gallery"],
     correctOption: 0,
-    hint: "These institutions preserve and display artifacts from the past.",
+    hint: "Estas instituições preservam e exibem artefactos do passado.",
   },
   {
     cefrLevel: "A2",
@@ -180,7 +180,7 @@ export const a2Questions = [
     text: "What do you call the brother of your mother or father?",
     options: ["Cousin", "Nephew", "Uncle", "Grandfather"],
     correctOption: 2,
-    hint: "Your aunt is married to your ___.",
+    hint: "A tua tia é casada com o teu ___.",
   },
 
   // A2 - Reading (10 questions)
@@ -191,7 +191,7 @@ export const a2Questions = [
     text: "Read the text: 'The supermarket is open from 9 AM to 8 PM.' When does it close?",
     options: ["At 9 AM", "At 8 PM", "All day", "At 9 PM"],
     correctOption: 1,
-    hint: "The text gives a start time and an end time.",
+    hint: "O texto indica uma hora de início e uma hora de fim.",
   },
   {
     cefrLevel: "A2",
@@ -200,7 +200,7 @@ export const a2Questions = [
     text: "Read the text: 'To make tea, first boil some water. Then, pour the water into a cup with a tea bag.' What is the first step?",
     options: ["Pour water into a cup", "Get a tea bag", "Boil water", "Drink the tea"],
     correctOption: 2,
-    hint: "Look for the word 'first' in the instructions.",
+    hint: "Procura a palavra 'first' nas instruções.",
   },
   {
     cefrLevel: "A2",
@@ -209,7 +209,7 @@ export const a2Questions = [
     text: "Read the job advert: 'Wanted: English teacher. Must have 2 years of experience.' What is required for this job?",
     options: ["No experience", "A degree", "2 years of experience", "To be a student"],
     correctOption: 2,
-    hint: "The phrase 'must have' indicates a requirement.",
+    hint: "A frase 'must have' indica um requisito.",
   },
   {
     cefrLevel: "A2",
@@ -218,7 +218,7 @@ export const a2Questions = [
     text: "Read the text: 'The train to London leaves from platform 4. The train to Oxford leaves from platform 2.' Which platform is for the London train?",
     options: ["Platform 2", "Platform 4", "Platform 1", "The text doesn't say"],
     correctOption: 1,
-    hint: "Find 'London' in the text and see which platform number is associated with it.",
+    hint: "Encontra 'London' no texto e vê qual o número da plataforma associado.",
   },
   {
     cefrLevel: "A2",
@@ -227,7 +227,7 @@ export const a2Questions = [
     text: "Read the text: 'Alex can play the guitar, but he can't play the piano. His sister, however, can play the piano well.' Who can play the piano?",
     options: ["Alex", "His sister", "Both", "Neither"],
     correctOption: 1,
-    hint: "The word 'however' introduces a contrast.",
+    hint: "A palavra 'however' introduz um contraste.",
   },
   {
     cefrLevel: "A2",
@@ -236,7 +236,7 @@ export const a2Questions = [
     text: "Read the sign: 'No Parking'. What does this mean?",
     options: ["You can park here", "You can't leave your car here", "Parking for free", "Only park for a short time"],
     correctOption: 1,
-    hint: "The word 'No' indicates a prohibition.",
+    hint: "A palavra 'No' indica uma proibição.",
   },
   {
     cefrLevel: "A2",
@@ -245,7 +245,7 @@ export const a2Questions = [
     text: "Read the text: 'For this recipe, you will need flour, sugar, and eggs.' Which ingredient is NOT mentioned?",
     options: ["Flour", "Butter", "Eggs", "Sugar"],
     correctOption: 1,
-    hint: "Read the list of ingredients carefully and see which option is missing.",
+    hint: "Lê a lista de ingredientes com atenção e vê qual a opção que falta.",
   },
   {
     cefrLevel: "A2",
@@ -254,7 +254,7 @@ export const a2Questions = [
     text: "Read the text: 'The weather will be cold and windy, with a chance of rain in the evening.' What will the weather be like in the morning?",
     options: ["Rainy", "Sunny", "Cold and windy", "Warm"],
     correctOption: 2,
-    hint: "The text describes the general weather, and only specifies rain for the evening.",
+    hint: "O texto descreve o tempo geral e apenas especifica chuva para a noite.",
   },
   {
     cefrLevel: "A2",
@@ -263,7 +263,7 @@ export const a2Questions = [
     text: "Read the text: 'My appointment is on Wednesday at 11 AM.' What day is the appointment?",
     options: ["Tuesday", "Wednesday", "Thursday", "Friday"],
     correctOption: 1,
-    hint: "The text explicitly states the day of the week.",
+    hint: "O texto indica explicitamente o dia da semana.",
   },
   {
     cefrLevel: "A2",
@@ -272,7 +272,7 @@ export const a2Questions = [
     text: "Read the note: 'Gone to lunch. Back at 1 PM.' When will the person return?",
     options: ["In the morning", "At 1 PM", "At 12 PM", "They are not coming back"],
     correctOption: 1,
-    hint: "The note specifies the return time.",
+    hint: "A nota especifica a hora de regresso.",
   },
 
   // A2 - Listening (10 questions)
@@ -284,7 +284,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'The train is delayed by twenty minutes.').' What is the situation with the train?",
     options: ["It's on time", "It's early", "It's cancelled", "It's late"],
     correctOption: 3,
-    hint: "'Delayed' means it will arrive later than planned.",
+    hint: "'Delayed' significa que chegará mais tarde do que o planeado.",
   },
   {
     slug: "listening-a2-02",
@@ -294,7 +294,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I'd like a ticket for the eight-fifteen train, please.').' Which train does the person want a ticket for?",
     options: ["7:15", "8:50", "8:15", "8:05"],
     correctOption: 2,
-    hint: "Listen carefully to the numbers for the hour and minutes.",
+    hint: "Ouve com atenção os números das horas e dos minutos.",
   },
   {
     slug: "listening-a2-03",
@@ -304,7 +304,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'Turn left at the traffic lights, then it's the second building on your right.').' What is the final direction?",
     options: ["Turn right", "It's on the left", "It's the first building", "It's the second building on the right"],
     correctOption: 3,
-    hint: "The instructions give two steps. Focus on the second one.",
+    hint: "As instruções dão dois passos. Foca-te no segundo.",
   },
   {
     slug: "listening-a2-04",
@@ -314,7 +314,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I used to live in Paris, but now I live in Rome.').' Where does the person live now?",
     options: ["Paris", "Rome", "London", "The audio doesn't say"],
     correctOption: 1,
-    hint: "The phrase 'used to' talks about the past. 'Now' talks about the present.",
+    hint: "A frase 'used to' fala do passado. 'Now' fala do presente.",
   },
   {
     slug: "listening-a2-05",
@@ -324,7 +324,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I prefer tea to coffee, but I like both.').' Which statement is true?",
     options: ["He hates coffee", "He only likes tea", "He likes tea more than coffee", "He hates tea"],
     correctOption: 2,
-    hint: "The verb 'prefer' means to like one thing more than another.",
+    hint: "O verbo 'prefer' significa gostar mais de uma coisa do que de outra.",
   },
   {
     slug: "listening-a2-06",
@@ -334,7 +334,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'What's the weather forecast for tomorrow?').' What information does the person want?",
     options: ["The time", "The news", "The weather", "The date"],
     correctOption: 2,
-    hint: "The word 'forecast' is often used with weather.",
+    hint: "A palavra 'forecast' é frequentemente usada com o tempo.",
   },
   {
     slug: "listening-a2-07",
@@ -344,7 +344,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'My hobbies are reading and playing tennis.').' Which of these is one of their hobbies?",
     options: ["Swimming", "Cooking", "Reading", "Dancing"],
     correctOption: 2,
-    hint: "The speaker lists two activities they enjoy.",
+    hint: "O orador lista duas atividades que aprecia.",
   },
   {
     slug: "listening-a2-08",
@@ -354,7 +354,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'The total comes to fifteen pounds fifty.').' How much is the total?",
     options: ["£15.50", "£50.15", "£15.05", "£50.50"],
     correctOption: 0,
-    hint: "'Pounds' are the main currency unit, and 'fifty' refers to the pence.",
+    hint: "'Pounds' são a unidade monetária principal e 'fifty' refere-se aos pence.",
   },
   {
     slug: "listening-a2-09",
@@ -364,7 +364,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'My birthday is in April.').' When is their birthday?",
     options: ["In March", "In April", "In May", "In June"],
     correctOption: 1,
-    hint: "The speaker clearly states the month.",
+    hint: "O orador indica claramente o mês.",
   },
   {
     slug: "listening-a2-10",
@@ -374,7 +374,7 @@ export const a2Questions = [
     text: "Listen to the audio transcript: '(Audio: 'I'm allergic to nuts, so I can't eat that cake.').' Why can't they eat the cake?",
     options: ["They are not hungry", "They don't like cake", "They are allergic to nuts", "The cake is expensive"],
     correctOption: 2,
-    hint: "An 'allergy' is a medical reason for not eating something.",
+    hint: "Uma 'allergy' é uma razão médica para não comer algo.",
   },
 
   // A2 - Speaking (10 questions)
@@ -385,7 +385,7 @@ export const a2Questions = [
     text: "You want to ask about someone's weekend. What do you say?",
     options: ["Did you have a good weekend?", "What is the weekend?", "You like weekends?", "Go to the weekend."],
     correctOption: 0,
-    hint: "This is a friendly way to start a conversation on Monday morning.",
+    hint: "Esta é uma forma amigável de começar uma conversa na segunda-feira de manhã.",
   },
   {
     cefrLevel: "A2",
@@ -394,7 +394,7 @@ export const a2Questions = [
     text: "How do you give a simple opinion about a movie?",
     options: ["I think the movie is good.", "The movie is a movie.", "I see the movie.", "Was the movie?"],
     correctOption: 0,
-    hint: "Using 'I think...' is a great way to introduce your opinion.",
+    hint: "Usar 'I think...' é uma excelente forma de introduzir a tua opinião.",
   },
   {
     cefrLevel: "A2",
@@ -403,7 +403,7 @@ export const a2Questions = [
     text: "Choose the best way to invite a friend to the cinema.",
     options: ["We go cinema.", "Do you want to go to the cinema?", "Cinema now.", "I like the cinema."],
     correctOption: 1,
-    hint: "Asking 'Do you want to...' is a common and friendly way to make an invitation.",
+    hint: "Perguntar 'Do you want to...' é uma forma comum e amigável de fazer um convite.",
   },
   {
     cefrLevel: "A2",
@@ -412,7 +412,7 @@ export const a2Questions = [
     text: "You are late for a meeting. What should you say when you arrive?",
     options: ["Hello, I'm here.", "Sorry I'm late.", "Why did you start?", "I don't like being early."],
     correctOption: 1,
-    hint: "It's polite to apologize when you are not on time.",
+    hint: "É educado pedir desculpa quando não se chega a horas.",
   },
   {
     cefrLevel: "A2",
@@ -421,7 +421,7 @@ export const a2Questions = [
     text: "How do you ask for directions to the nearest post office?",
     options: ["Where is post office?", "Can you tell me how to get to the post office?", "I need post office.", "Is this the post office?"],
     correctOption: 1,
-    hint: "This is a polite and grammatically correct way to ask for help with directions.",
+    hint: "Esta é uma forma educada e gramaticalmente correta de pedir ajuda com direções.",
   },
   {
     cefrLevel: "A2",
@@ -430,7 +430,7 @@ export const a2Questions = [
     text: "Someone asks 'What did you do last night?' Choose a simple, correct answer.",
     options: ["I watch TV.", "I will watch TV.", "I am watching TV.", "I watched TV."],
     correctOption: 3,
-    hint: "The question is in the past tense ('did'), so your answer should be too.",
+    hint: "A pergunta está no passado ('did'), por isso a tua resposta também deve estar.",
   },
   {
     cefrLevel: "A2",
@@ -439,7 +439,7 @@ export const a2Questions = [
     text: "How do you describe a past holiday?",
     options: ["It was amazing.", "It is amazing.", "It will be amazing.", "It amazing."],
     correctOption: 0,
-    hint: "Use the past tense of 'to be' (was/were) to talk about past experiences.",
+    hint: "Usa o passado do verbo 'to be' (was/were) para falar de experiências passadas.",
   },
   {
     cefrLevel: "A2",
@@ -448,7 +448,7 @@ export const a2Questions = [
     text: "Choose the best way to make a suggestion for dinner.",
     options: ["We eat pizza.", "How about getting a pizza?", "I suggest pizza.", "Pizza is a food."],
     correctOption: 1,
-    hint: "'How about...' is a very common and friendly way to make a suggestion.",
+    hint: "'How about...' é uma forma muito comum e amigável de fazer uma sugestão.",
   },
   {
     cefrLevel: "A2",
@@ -457,7 +457,7 @@ export const a2Questions = [
     text: "How do you ask for a menu in a restaurant?",
     options: ["Can I see the menu, please?", "Where is food?", "Give me menu.", "I am hungry."],
     correctOption: 0,
-    hint: "This is a polite and direct question to ask the waiter.",
+    hint: "Esta é uma pergunta educada e direta para fazer ao empregado.",
   },
   {
     cefrLevel: "A2",
@@ -466,7 +466,7 @@ export const a2Questions = [
     text: "You want to say you can't do something. What's the best phrase?",
     options: ["I no can do.", "I'm not able.", "I can't.", "I don't."],
     correctOption: 2,
-    hint: "This is the standard contraction for 'cannot'.",
+    hint: "Esta é a contração padrão para 'cannot'.",
   },
 
   // A2 - Writing (10 questions)
@@ -477,7 +477,7 @@ export const a2Questions = [
     text: "Which sentence correctly describes a past action?",
     options: ["I visit my grandparents last weekend.", "I will visit my grandparents last weekend.", "I visited my grandparents last weekend.", "I am visiting my grandparents last weekend."],
     correctOption: 2,
-    hint: "For regular verbs in the past simple, we usually add '-ed'.",
+    hint: "Para verbos regulares no past simple, geralmente adicionamos '-ed'.",
   },
   {
     cefrLevel: "A2",
@@ -486,7 +486,7 @@ export const a2Questions = [
     text: "Choose the correct sentence about a future plan.",
     options: ["I going to start a new job.", "I'm go to start a new job.", "I'm going to start a new job.", "I will to start a new job."],
     correctOption: 2,
-    hint: "The 'be going to' structure is used for future plans and intentions.",
+    hint: "A estrutura 'be going to' é usada para planos e intenções futuras.",
   },
   {
     cefrLevel: "A2",
@@ -495,7 +495,7 @@ export const a2Questions = [
     text: "Combine these two sentences: 'She is a doctor. She works at the city hospital.'",
     options: ["She is a doctor, she works at the city hospital.", "She is a doctor and she works at the city hospital.", "She is a doctor because she works at the city hospital.", "She is a doctor, works at the city hospital."],
     correctOption: 1,
-    hint: "Use a conjunction like 'and' to connect two related ideas.",
+    hint: "Usa uma conjunção como 'and' para ligar duas ideias relacionadas.",
   },
   {
     cefrLevel: "A2",
@@ -504,7 +504,7 @@ export const a2Questions = [
     text: "You're writing a postcard. How would you finish it?",
     options: ["Sincerely,", "Best regards,", "See you soon,", "Yours faithfully,"],
     correctOption: 2,
-    hint: "This is a friendly and common closing for an informal message to a friend or family member.",
+    hint: "Este é um fecho amigável e comum para uma mensagem informal a um amigo ou familiar.",
   },
   {
     cefrLevel: "A2",
@@ -513,7 +513,7 @@ export const a2Questions = [
     text: "Which of these sentences is a correct description?",
     options: ["He has a car red.", "He has a red car.", "He has car red.", "He a red car has."],
     correctOption: 1,
-    hint: "In English, adjectives (like colors) usually come before the noun they describe.",
+    hint: "Em inglês, os adjetivos (como as cores) geralmente vêm antes do substantivo que descrevem.",
   },
   {
     cefrLevel: "A2",
@@ -522,7 +522,7 @@ export const a2Questions = [
     text: "How do you write a list of your hobbies in a sentence?",
     options: ["My hobbies are: reading, swimming, cooking.", "My hobbies are reading swimming cooking.", "My hobbies are reading, swimming and cooking.", "My hobbies are reading. swimming. cooking."],
     correctOption: 2,
-    hint: "Use commas to separate items in a list, with 'and' before the final item.",
+    hint: "Usa vírgulas para separar itens numa lista, com 'and' antes do item final.",
   },
   {
     cefrLevel: "A2",
@@ -531,7 +531,7 @@ export const a2Questions = [
     text: "Choose the correct question form.",
     options: ["Where you are from?", "Where are you from?", "Where from you are?", "You are from where?"],
     correctOption: 1,
-    hint: "In questions with 'to be', the verb comes before the subject.",
+    hint: "Em perguntas com o verbo 'to be', o verbo vem antes do sujeito.",
   },
   {
     cefrLevel: "A2",
@@ -540,7 +540,7 @@ export const a2Questions = [
     text: "You are describing your daily routine. Which sentence is best?",
     options: ["First, I get up. Then, I have breakfast.", "Get up first. Breakfast then.", "I get up, I have breakfast.", "First I get up. Then I have breakfast."],
     correctOption: 0,
-    hint: "Using sequencers like 'First' and 'Then' (with commas) makes the order of events clear.",
+    hint: "Usar sequenciadores como 'First' e 'Then' (com vírgulas) torna clara a ordem dos eventos.",
   },
   {
     cefrLevel: "A2",
@@ -549,7 +549,7 @@ export const a2Questions = [
     text: "How do you express ability?",
     options: ["I can to swim.", "I can swim.", "I swim can.", "I am swim."],
     correctOption: 1,
-    hint: "The modal verb 'can' is followed by the base form of the verb without 'to'.",
+    hint: "O verbo modal 'can' é seguido pela forma base do verbo sem o 'to'.",
   },
   {
     cefrLevel: "A2",
@@ -558,6 +558,6 @@ export const a2Questions = [
     text: "Which is the correct way to write an email address?",
     options: ["user at example dot com", "user@example.com", "user.example@com", "user@example com"],
     correctOption: 1,
-    hint: "Email addresses use the '@' symbol and a dot '.' before the domain extension.",
+    hint: "Os endereços de e-mail usam o símbolo '@' e um ponto '.' antes da extensão do domínio.",
   },
 ];
